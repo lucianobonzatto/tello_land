@@ -5,7 +5,7 @@ Pacote usadno para pouso autonomo de drone. A ideia é montar um código para ut
 
 # files
 
-## shell_scripts
+### shell_scripts
 
 1. iris_sim: executa o gazebo com um magni e um iris uav e os pacotes necessários para o mng
 
@@ -13,45 +13,15 @@ Pacote usadno para pouso autonomo de drone. A ideia é montar um código para ut
 
 3. mavros_mng: executa os pacotes necessários para o land e para a comunicação com a pixhawlk 4
 
-# tello
 
-## install
-```
-cd catkin_ws/src
-git clone https://github.com/lucianobonzatto/tello_control.git
-cd ..
-catkin_make
-```
-
-## dependencies
+# dependencies
 
 ### tello_driver
 
-foi feito baseado no seguinte pacote:
 
-https://github.com/appie-17/tello_driver
+# topics by nodes
 
-```
-sudo apt install ros-noetic-codec-image-transport
-
-sudo apt-get install python3-wheel
-
-cd tello_driver/src/tellopy/tellopy
-
-python3 setup.py bdist_wheel
-
-sudo apt-get install python3-pip
-
-pip3 install dist/tellopy-*.dev*.whl --upgrade
-```
-
-### camera_info_manager_py
-dependencie of tello_driver
-https://github.com/ros-perception/camera_info_manager_py
-
-
-
-## topics
+## tello_driver
 
 ### Subscribed topics
 * ```/tello/cmd_vel``` [geometry_msgs/Twist](http://docs.ros.org/api/geometry_msgs/html/msg/Twist.html)
