@@ -8,14 +8,15 @@ project(uav_land)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  geometry_msgs
-  mavros
-  message_generation
   roscpp
-  roslib
   rospy
-  sensor_msgs
+  roslib
   std_msgs
+  sensor_msgs
+  geometry_msgs
+  message_generation
+  mavros
+  tello_driver
 )
 
 ## System dependencies are found with CMake's conventions
@@ -73,10 +74,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   geometry_msgs#   sensor_msgs   std_msgs
- )
+# generate_messages(
+#   DEPENDENCIES
+#   geometry_msgs   sensor_msgs   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -110,7 +111,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES uav_land
-  CATKIN_DEPENDS geometry_msgs mavros roscpp roslib rospy sensor_msgs std_msgs
+  CATKIN_DEPENDS geometry_msgs mavros roscpp roslib rospy sensor_msgs std_msgs tello_driver
 # DEPENDS system_lib
 )
 
@@ -215,4 +216,4 @@ add_executable( manager_node
                 include/uav_land/PIDlib.cpp
 )
 target_link_libraries(manager_node ${catkin_LIBRARIES})
-add_dependencies(manager_node uav_land_generate_messages_cpp)
+# add_dependencies(manager_node uav_land_generate_messages_cpp)
