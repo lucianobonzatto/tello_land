@@ -130,17 +130,20 @@ void Manager::send_velocity(geometry_msgs::Twist velocity)
 
 void Manager::poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
 {
-  // principal.set_pose(*msg);
+  pose = *msg;
 }
+
 void Manager::odomCallback(const nav_msgs::Odometry::ConstPtr &msg)
 {
-  // principal.set_odom(*msg);
+  odom = *msg;
 }
+
 void Manager::joyCallback(const sensor_msgs::Joy::ConstPtr &msg)
 {
-  // principal.set_joy(*msg);
+  joy = *msg;
 }
+
 void Manager::parametersCallback(const std_msgs::Float32MultiArray::ConstPtr &msg)
 {
-  // principal.set_parameters(*msg);
+  parameters = *msg;
 }
