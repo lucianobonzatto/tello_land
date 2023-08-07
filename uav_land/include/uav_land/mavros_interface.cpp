@@ -1,4 +1,4 @@
-#include "drone_control.h"
+#include "mavros_interface.h"
 
 #include <mavros_msgs/CommandTOL.h>
 #include <mavros_msgs/SetMode.h>
@@ -12,7 +12,7 @@
 #include <geometry_msgs/TwistStamped.h>
 #include <geometry_msgs/Vector3.h>
 
-DroneControl::DroneControl(ROSClient *ros_client)
+MavrosInterface::MavrosInterface(ROSClient *ros_client)
 {
   this->ros_client_ = ros_client;
   this->ros_client_->init(this);
@@ -23,17 +23,17 @@ DroneControl::DroneControl(ROSClient *ros_client)
   static tf2_ros::TransformListener tfListener(tfBuffer_);
 }
 
-void DroneControl::state_cb(const mavros_msgs::State::ConstPtr &msg)
+void MavrosInterface::state_cb(const mavros_msgs::State::ConstPtr &msg)
 {
   current_state_ = *msg;
 }
 
-void DroneControl::extended_state_cb(const mavros_msgs::ExtendedState::ConstPtr &msg)
+void MavrosInterface::extended_state_cb(const mavros_msgs::ExtendedState::ConstPtr &msg)
 {
   landed_state_ = msg->landed_state;
 }
 
-void DroneControl::local_position_cb(const geometry_msgs::PoseStamped::ConstPtr &msg)
+void MavrosInterface::local_position_cb(const geometry_msgs::PoseStamped::ConstPtr &msg)
 {
   local_position_ = *msg;
   static int cnt = 0;
@@ -59,7 +59,7 @@ void DroneControl::local_position_cb(const geometry_msgs::PoseStamped::ConstPtr 
   }
 }
 
-DroneControl::~DroneControl()
+MavrosInterface::~MavrosInterface()
 {
   geometry_msgs::TwistStamped vel_msg;
   
@@ -76,7 +76,7 @@ DroneControl::~DroneControl()
 
 }
 
-void DroneControl::global_position_cb(const sensor_msgs::NavSatFix::ConstPtr &msg)
+void MavrosInterface::global_position_cb(const sensor_msgs::NavSatFix::ConstPtr &msg)
 {
   global_position_ = *msg;
   static int cnt = 0;
@@ -88,7 +88,7 @@ void DroneControl::global_position_cb(const sensor_msgs::NavSatFix::ConstPtr &ms
   }
 }
 
-void DroneControl::flyToGlobal(double latitude, double longitude, double altitude, double yaw)
+void MavrosInterface::flyToGlobal(double latitude, double longitude, double altitude, double yaw)
 {
   mavros_msgs::GlobalPositionTarget target;
   target.coordinate_frame = mavros_msgs::GlobalPositionTarget::FRAME_GLOBAL_INT;
@@ -116,7 +116,7 @@ void DroneControl::flyToGlobal(double latitude, double longitude, double altitud
   }
 }
 
-void DroneControl::flyToLocal(double x, double y, double z)
+void MavrosInterface::flyToLocal(double x, double y, double z)
 {
   double yaw = 0;
   if(!std::isfinite(yaw))
@@ -147,7 +147,7 @@ void DroneControl::flyToLocal(double x, double y, double z)
   }
 }
 
-void DroneControl::hover(double seconds)
+void MavrosInterface::hover(double seconds)
 {
   ROS_INFO("Hovering for %f seconds in position: E: %f, N: %f, U: %f", seconds,
            local_position_.pose.position.x,
@@ -164,7 +164,7 @@ void DroneControl::hover(double seconds)
   return;
 }
 
-void DroneControl::cmd_vel(double x, double y, double z, double ang)
+void MavrosInterface::cmd_vel(double x, double y, double z, double ang)
 {
   geometry_msgs::TwistStamped vel_msg, world_msg;
 
@@ -191,7 +191,7 @@ void DroneControl::cmd_vel(double x, double y, double z, double ang)
   rate_->sleep();
 }
 
-void DroneControl::offboardMode()
+void MavrosInterface::offboardMode()
 {
   // Wait for FCU connection
   // while(ros::ok() && current_state_.connected)
@@ -276,7 +276,7 @@ void DroneControl::offboardMode()
   return;
 }
 
-void DroneControl::takeOff()
+void MavrosInterface::takeOff()
 {
   ROS_INFO("Taking off. Current position: E: %f, N: %f, U: %f", local_position_.pose.position.x,
            local_position_.pose.position.y, local_position_.pose.position.z);
@@ -296,7 +296,7 @@ void DroneControl::takeOff()
   return;
 }
 
-void DroneControl::land()
+void MavrosInterface::land()
 {
   int i;
   mavros_msgs::CommandTOL land_cmd;
@@ -329,7 +329,7 @@ void DroneControl::land()
   return;
 }
 
-void DroneControl::disarm()
+void MavrosInterface::disarm()
 {
   // Disarm
   arm_cmd_.request.value = false;
@@ -349,7 +349,7 @@ void DroneControl::disarm()
   return;
 }
 
-double DroneControl::currentYaw()
+double MavrosInterface::currentYaw()
 {
   //Calculate yaw current orientation
   double roll, pitch, yaw;
@@ -361,7 +361,7 @@ double DroneControl::currentYaw()
   return yaw;
 }
 
-double DroneControl::distance(const geometry_msgs::PoseStamped &p1, const geometry_msgs::PoseStamped &p2)
+double MavrosInterface::distance(const geometry_msgs::PoseStamped &p1, const geometry_msgs::PoseStamped &p2)
 {
   tf::Point t1, t2;
   tf::pointMsgToTF(p1.pose.position, t1);

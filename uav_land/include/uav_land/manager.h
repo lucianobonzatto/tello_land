@@ -5,7 +5,7 @@
 #include "state_machine.h"
 #include "follow_controller.h"
 #include "land_controller.h"
-#include "drone_control.h"
+#include "mavros_interface.h"
 
 class Manager
 {
@@ -13,7 +13,7 @@ public:
     Manager();
     ~Manager();
 
-    void Init(DroneControl *drone_control,
+    void Init(MavrosInterface *drone_control,
               double joyLinearVelocity,
               double joyAngularVelocity);
 
@@ -31,7 +31,7 @@ private:
     nav_msgs::Odometry odom;
     std_msgs::Float32MultiArray parameters;
 
-    DroneControl *drone_connection;
+    MavrosInterface *drone_connection;
     State_Machine state_machine;
     Follow_Controller follow_controller;
     Land_Controller land_controller;

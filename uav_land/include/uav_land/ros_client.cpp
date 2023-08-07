@@ -22,12 +22,12 @@ ROSClient::ROSClient(ros::NodeHandle *handle)
   avoidCollision_ = false;
 }
 
-void ROSClient::init(DroneControl *const drone_control)
+void ROSClient::init(MavrosInterface *const drone_control)
 {
-  state_sub_ = nh_->subscribe<mavros_msgs::State>("/mavros/state", 10, &DroneControl::state_cb, drone_control);
-  extended_state_sub_ = nh_->subscribe<mavros_msgs::ExtendedState>("/mavros/extended_state", 10, &DroneControl::extended_state_cb, drone_control);
-  local_pos_sub_ = nh_->subscribe<geometry_msgs::PoseStamped>("/mavros/local_position/pose", 10, &DroneControl::local_position_cb, drone_control);
-  global_pos_sub_ = nh_->subscribe<sensor_msgs::NavSatFix>("/mavros/global_position/global", 10, &DroneControl::global_position_cb, drone_control);
+  state_sub_ = nh_->subscribe<mavros_msgs::State>("/mavros/state", 10, &MavrosInterface::state_cb, drone_control);
+  extended_state_sub_ = nh_->subscribe<mavros_msgs::ExtendedState>("/mavros/extended_state", 10, &MavrosInterface::extended_state_cb, drone_control);
+  local_pos_sub_ = nh_->subscribe<geometry_msgs::PoseStamped>("/mavros/local_position/pose", 10, &MavrosInterface::local_position_cb, drone_control);
+  global_pos_sub_ = nh_->subscribe<sensor_msgs::NavSatFix>("/mavros/global_position/global", 10, &MavrosInterface::global_position_cb, drone_control);
 
   global_setpoint_pos_pub_ = nh_->advertise<geographic_msgs::GeoPoseStamped>("/mavros/setpoint_position/global", 10);
   setpoint_pos_pub_ = nh_->advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local", 10);

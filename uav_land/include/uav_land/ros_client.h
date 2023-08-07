@@ -1,19 +1,19 @@
 #ifndef ROS_CLIENT_H
 #define ROS_CLIENT_H
 
-#include "drone_control.h"
+#include "mavros_interface.h"
 
 #include <ros/ros.h>
 #include <geometry_msgs/PoseStamped.h>
 
-class DroneControl; // Forward declaration because of circular reference
+class MavrosInterface; // Forward declaration because of circular reference
 
 class ROSClient
 {
   public:
     ROSClient(ros::NodeHandle *handle);
 
-    void init(DroneControl *const drone_control);
+    void init(MavrosInterface *const drone_control);
 
     ros::Subscriber state_sub_;
     ros::Subscriber extended_state_sub_;

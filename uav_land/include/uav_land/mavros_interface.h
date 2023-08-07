@@ -24,11 +24,11 @@
 
 class ROSClient; // Forward declaration because of circular reference
 
-class DroneControl
+class MavrosInterface
 {
   public:
-    DroneControl(ROSClient *ros_client);
-    ~DroneControl();
+    MavrosInterface(ROSClient *ros_client);
+    ~MavrosInterface();
 
     static constexpr float TAKEOFF_ALTITUDE = 5.0;
     static constexpr float ROS_RATE = 20.0;

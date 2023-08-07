@@ -1,7 +1,7 @@
 #include "general.h"
 #include "manager.h"
 #include "ros_client.h"
-#include "drone_control.h"
+#include "mavros_interface.h"
 
 Manager principal;
 
@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
   ros::Rate loop_rate(20);
 
   ROSClient ros_client(nh);
-  DroneControl drone_control(&ros_client);
+  MavrosInterface drone_control(&ros_client);
 
   ros::Subscriber pose_sub = nh->subscribe<geometry_msgs::PoseStamped>("/iris/pose", 10, &poseCallback);
   ros::Subscriber odom_sub = nh->subscribe<nav_msgs::Odometry>("/mavros/local_position/odom", 1, &odomCallback);

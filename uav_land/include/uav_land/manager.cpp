@@ -8,7 +8,7 @@ Manager::~Manager()
 {
 }
 
-void Manager::Init(DroneControl *drone_control,
+void Manager::Init(MavrosInterface *drone_control,
                    double joyLinearVelocity,
                    double joyAngularVelocity)
 {
