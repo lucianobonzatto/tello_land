@@ -128,15 +128,19 @@ void Manager::send_velocity(geometry_msgs::Twist velocity)
   //                           velocity.angular.z);
 }
 
-void Manager::poseCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
+void Manager::poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
+{
   // principal.set_pose(*msg);
 }
-void Manager::odomCallback(const nav_msgs::Odometry::ConstPtr& msg){
+void Manager::odomCallback(const nav_msgs::Odometry::ConstPtr &msg)
+{
   // principal.set_odom(*msg);
 }
-void Manager::joyCallback(const sensor_msgs::Joy::ConstPtr& msg){
+void Manager::joyCallback(const sensor_msgs::Joy::ConstPtr &msg)
+{
   // principal.set_joy(*msg);
 }
-void Manager::parametersCallback(const std_msgs::Float32MultiArray::ConstPtr& msg){
+void Manager::parametersCallback(const std_msgs::Float32MultiArray::ConstPtr &msg)
+{
   // principal.set_parameters(*msg);
 }

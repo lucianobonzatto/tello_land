@@ -11,7 +11,6 @@ int main(int argc, char *argv[])
   ros::Rate loop_rate(20);
 
   ROSClient ros_client(nh);
-
   principal.Init(&ros_client, 5, 1);
 
   while(ros::ok()){
@@ -21,6 +20,5 @@ int main(int argc, char *argv[])
     
     loop_rate.sleep();
   }
-
   delete nh;
 }

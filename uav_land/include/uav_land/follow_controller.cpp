@@ -82,10 +82,10 @@ geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped 
     velocity.linear.z = vel.vz;
     velocity.angular.z = vel.vtheta;
 
-    cout << "x -> " << setpoint.x << "\t" << pose.position.x << "\t" << velocity.linear.x << endl;
-    cout << "y -> " << setpoint.y << "\t" << pose.position.y << "\t" << velocity.linear.y << endl;
-    cout << "z -> " << setpoint.z << "\t" << pose.position.z << "\t" << velocity.linear.z << endl;
-    cout << "theta -> " << setpoint.theta << "\t" << pose.position.z << "\t" << velocity.linear.z << endl;
+    // cout << "x -> " << setpoint.x << "\t" << pose.position.x << "\t" << velocity.linear.x << endl;
+    // cout << "y -> " << setpoint.y << "\t" << pose.position.y << "\t" << velocity.linear.y << endl;
+    // cout << "z -> " << setpoint.z << "\t" << pose.position.z << "\t" << velocity.linear.z << endl;
+    // cout << "theta -> " << setpoint.theta << "\t" << pose.position.z << "\t" << velocity.linear.z << endl;
 
     return velocity;
 }
