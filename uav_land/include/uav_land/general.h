@@ -6,13 +6,14 @@
 #include <unistd.h>
 #include <string>
 #include <ros/ros.h>
+#include <cmath>
 
 #include "std_msgs/Bool.h"
 #include "std_msgs/Empty.h"
 #include "std_msgs/String.h"
 #include "std_msgs/Float32MultiArray.h"
 
-// #include "geometry_msgs/Point.h"
+#include "geometry_msgs/Point.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/PoseStamped.h"
@@ -23,6 +24,7 @@
 
 #include "nav_msgs/Odometry.h"
 
+#include "sensor_msgs/Imu.h"
 #include "sensor_msgs/Joy.h"
 #include "sensor_msgs/NavSatFix.h"
 
@@ -35,6 +37,7 @@
 
 #include <geographic_msgs/GeoPoseStamped.h>
 
+#include "tello_driver/TelloStatus.h"
 
 using namespace std;
 

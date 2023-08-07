@@ -12,7 +12,6 @@ void Manager::Init(ROSClient *drone_control,
                    double joyLinearVelocity,
                    double joyAngularVelocity)
 {
-  // drone_connection = drone_control;
   joy_linear_velocity = joyLinearVelocity;
   joy_angular_velocity = joyAngularVelocity;
 }
@@ -73,13 +72,14 @@ void Manager::STOPPED_action()
 
 void Manager::TAKE_OFF_action()
 {
-  // drone_connection->offboardMode();
-  // drone_connection->takeOff();
+  std_msgs::Empty emptyMsg;
+  ROS_client->takeoff_pub.publish(emptyMsg);
 }
 
 void Manager::LAND_action()
 {
-  // drone_connection->land();
+  std_msgs::Empty emptyMsg;
+  ROS_client->cmd_vel_pub.publish(emptyMsg);
 }
 
 void Manager::JOY_CONTROL_action()
@@ -117,15 +117,20 @@ void Manager::FOLLOW_CONTROL_action()
 
 void Manager::send_velocity(double x_linear, double y_linear, double z_linear, double angular)
 {
-  // drone_connection->cmd_vel(x_linear, y_linear, z_linear, angular);
+  geometry_msgs::Twist velocity;
+  velocity.linear.x = x_linear;
+  velocity.linear.y = y_linear;
+  velocity.linear.z = z_linear;
+
+  velocity.angular.x = 0;
+  velocity.angular.y = 0;
+  velocity.angular.z = angular;
+  ROS_client->cmd_vel_pub.publish(velocity);
 }
 
 void Manager::send_velocity(geometry_msgs::Twist velocity)
 {
-  // drone_connection->cmd_vel(velocity.linear.x,
-  //                           velocity.linear.y,
-  //                           velocity.linear.z,
-  //                           velocity.angular.z);
+  ROS_client->cmd_vel_pub.publish(velocity);
 }
 
 void Manager::poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
@@ -146,4 +151,14 @@ void Manager::joyCallback(const sensor_msgs::Joy::ConstPtr &msg)
 void Manager::parametersCallback(const std_msgs::Float32MultiArray::ConstPtr &msg)
 {
   parameters = *msg;
+}
+
+void Manager::imuCallback(const sensor_msgs::Imu::ConstPtr &msg)
+{
+  imu = *msg;
+}
+
+void Manager::statusCallback(const tello_driver::TelloStatus::ConstPtr &msg)
+{
+  status = *msg;
 }

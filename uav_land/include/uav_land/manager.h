@@ -24,17 +24,21 @@ public:
     void odomCallback(const nav_msgs::Odometry::ConstPtr &msg);
     void joyCallback(const sensor_msgs::Joy::ConstPtr &msg);
     void parametersCallback(const std_msgs::Float32MultiArray::ConstPtr &msg);
+    void imuCallback(const sensor_msgs::Imu::ConstPtr &msg);
+    void statusCallback(const tello_driver::TelloStatus::ConstPtr &msg);
 
 private:
-    geometry_msgs::PoseStamped pose;
     sensor_msgs::Joy joy;
+    sensor_msgs::Imu imu;
     nav_msgs::Odometry odom;
+    geometry_msgs::PoseStamped pose;
+    tello_driver::TelloStatus status;
     std_msgs::Float32MultiArray parameters;
 
     ROSClient *ROS_client;
     State_Machine state_machine;
-    Follow_Controller follow_controller;
     Land_Controller land_controller;
+    Follow_Controller follow_controller;
 
     void STOPPED_action();
     void TAKE_OFF_action();
