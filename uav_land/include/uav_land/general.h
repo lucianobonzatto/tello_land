@@ -5,16 +5,36 @@
 #include <iostream>
 #include <unistd.h>
 #include <string>
-#include "ros/ros.h"
-#include "std_msgs/Empty.h"
+#include <ros/ros.h>
+
 #include "std_msgs/Bool.h"
+#include "std_msgs/Empty.h"
+#include "std_msgs/String.h"
 #include "std_msgs/Float32MultiArray.h"
+
 // #include "geometry_msgs/Point.h"
 #include "geometry_msgs/Twist.h"
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/PoseStamped.h"
+#include "geometry_msgs/PoseArray.h"
+#include "geometry_msgs/PoseWithCovarianceStamped.h"
+#include "geometry_msgs/TransformStamped.h"
+#include "geometry_msgs/TwistStamped.h"
+
 #include "nav_msgs/Odometry.h"
-#include <sensor_msgs/Joy.h>
+
+#include "sensor_msgs/Joy.h"
+#include "sensor_msgs/NavSatFix.h"
+
+#include <mavros_msgs/CommandBool.h>
+#include <mavros_msgs/CommandTOL.h>
+#include <mavros_msgs/SetMode.h>
+#include <mavros_msgs/State.h>
+#include <mavros_msgs/ExtendedState.h>
+#include <mavros_msgs/GlobalPositionTarget.h>
+
+#include <geographic_msgs/GeoPoseStamped.h>
+
 
 using namespace std;
 

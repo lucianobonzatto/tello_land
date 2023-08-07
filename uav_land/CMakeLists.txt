@@ -211,7 +211,6 @@ add_executable( manager_node
                 include/uav_land/state_machine.cpp
                 include/uav_land/follow_controller.cpp
                 include/uav_land/land_controller.cpp
-                include/uav_land/mavros_interface.cpp
                 include/uav_land/rosClient.cpp
                 include/uav_land/PIDlib.cpp
 )

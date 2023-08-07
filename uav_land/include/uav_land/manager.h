@@ -5,7 +5,7 @@
 #include "state_machine.h"
 #include "follow_controller.h"
 #include "land_controller.h"
-#include "mavros_interface.h"
+#include "rosClient.h"
 
 class Manager
 {
@@ -13,17 +13,17 @@ public:
     Manager();
     ~Manager();
 
-    void Init(MavrosInterface *drone_control,
+    void Init(ROSClient *drone_control,
               double joyLinearVelocity,
               double joyAngularVelocity);
 
     void print_parameters();
     void update();
 
-    void set_pose(geometry_msgs::PoseStamped newPose);
-    void set_odom(nav_msgs::Odometry newOdom);
-    void set_joy(sensor_msgs::Joy newJoy);
-    void set_parameters(std_msgs::Float32MultiArray newParameters);
+    void poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg);
+    void odomCallback(const nav_msgs::Odometry::ConstPtr &msg);
+    void joyCallback(const sensor_msgs::Joy::ConstPtr &msg);
+    void parametersCallback(const std_msgs::Float32MultiArray::ConstPtr &msg);
 
 private:
     geometry_msgs::PoseStamped pose;
@@ -31,7 +31,7 @@ private:
     nav_msgs::Odometry odom;
     std_msgs::Float32MultiArray parameters;
 
-    MavrosInterface *drone_connection;
+    ROSClient *ROS_client;
     State_Machine state_machine;
     Follow_Controller follow_controller;
     Land_Controller land_controller;

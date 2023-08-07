@@ -8,11 +8,11 @@ Manager::~Manager()
 {
 }
 
-void Manager::Init(MavrosInterface *drone_control,
+void Manager::Init(ROSClient *drone_control,
                    double joyLinearVelocity,
                    double joyAngularVelocity)
 {
-  drone_connection = drone_control;
+  // drone_connection = drone_control;
   joy_linear_velocity = joyLinearVelocity;
   joy_angular_velocity = joyAngularVelocity;
 }
@@ -73,13 +73,13 @@ void Manager::STOPPED_action()
 
 void Manager::TAKE_OFF_action()
 {
-  drone_connection->offboardMode();
-  drone_connection->takeOff();
+  // drone_connection->offboardMode();
+  // drone_connection->takeOff();
 }
 
 void Manager::LAND_action()
 {
-  drone_connection->land();
+  // drone_connection->land();
 }
 
 void Manager::JOY_CONTROL_action()
@@ -117,33 +117,26 @@ void Manager::FOLLOW_CONTROL_action()
 
 void Manager::send_velocity(double x_linear, double y_linear, double z_linear, double angular)
 {
-  drone_connection->cmd_vel(x_linear, y_linear, z_linear, angular);
+  // drone_connection->cmd_vel(x_linear, y_linear, z_linear, angular);
 }
 
 void Manager::send_velocity(geometry_msgs::Twist velocity)
 {
-  drone_connection->cmd_vel(velocity.linear.x,
-                            velocity.linear.y,
-                            velocity.linear.z,
-                            velocity.angular.z);
+  // drone_connection->cmd_vel(velocity.linear.x,
+  //                           velocity.linear.y,
+  //                           velocity.linear.z,
+  //                           velocity.angular.z);
 }
 
-void Manager::set_pose(geometry_msgs::PoseStamped newPose)
-{
-  pose = newPose;
+void Manager::poseCallback(const geometry_msgs::PoseStamped::ConstPtr& msg){
+  // principal.set_pose(*msg);
 }
-
-void Manager::set_odom(nav_msgs::Odometry newOdom)
-{
-  odom = newOdom;
+void Manager::odomCallback(const nav_msgs::Odometry::ConstPtr& msg){
+  // principal.set_odom(*msg);
 }
-
-void Manager::set_joy(sensor_msgs::Joy newJoy)
-{
-  joy = newJoy;
+void Manager::joyCallback(const sensor_msgs::Joy::ConstPtr& msg){
+  // principal.set_joy(*msg);
 }
-
-void Manager::set_parameters(std_msgs::Float32MultiArray newParameters)
-{
-  parameters = newParameters;
+void Manager::parametersCallback(const std_msgs::Float32MultiArray::ConstPtr& msg){
+  // principal.set_parameters(*msg);
 }
