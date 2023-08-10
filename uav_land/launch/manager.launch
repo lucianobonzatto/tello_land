@@ -1,11 +1,11 @@
 <launch>
-  <node name="manager_node" pkg="iris_followup" type="manager_node" output="screen">
+  <node name="manager_node" pkg="uav_land" type="manager_node" output="screen">
     <param name="joy_linear_velocity" value="0.2" />
     <param name="joy_angular_velocity" value="0.2" />
   </node>
 
   <node name="joy_node" pkg="joy" type="joy_node">
-    <param name="dev" value="/dev/input/js1" />
+    <param name="dev" value="/dev/input/js0" />
     <param name="deadzone" value="0.1" />
     <param name="autorepeat_rate" value="20" />
     <remap from="joy" to="joy_control"/>

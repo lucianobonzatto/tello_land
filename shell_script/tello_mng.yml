@@ -1,0 +1,14 @@
+name: tello_mng
+root: ./
+startup_window: tello_mng
+windows:
+  - image_transport:
+      layout: tiled
+      panes:
+        - sleep 10; rqt_image_view
+        - sleep 10; roslaunch tello_driver image_transport.launch
+  - tello_driver:
+      layout: tiled
+      panes:
+        - roslaunch tello_driver tello_node.launch
+        - sleep 1; roslaunch uav_land manager.launch
