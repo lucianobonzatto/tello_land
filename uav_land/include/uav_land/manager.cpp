@@ -14,13 +14,16 @@ void Manager::Init(ROSClient *drone_control,
 {
   joy_linear_velocity = joyLinearVelocity;
   joy_angular_velocity = joyAngularVelocity;
+
+  ROS_client = drone_control;
+  ROS_client->init(this);
 }
 
 void Manager::print_parameters()
 {
   cout << "================" << endl;
   // cout << "\ttrack: " << track.header.stamp << endl;
-  cout << "\tpose: " << pose << endl;
+  // cout << "\tpose: " << pose << endl;
   cout << "\tjoy: " << joy.header.stamp << endl;
   cout << "\todom: " << odom.header.stamp << endl;
   cout << "\tstate: " << states_name[state_machine.get_state()] << endl;
@@ -30,7 +33,6 @@ void Manager::print_parameters()
 
 void Manager::update()
 {
-  FOLLOW_CONTROL_action();
   STATES state = state_machine.get_state();
   switch (state)
   {
@@ -79,7 +81,7 @@ void Manager::TAKE_OFF_action()
 void Manager::LAND_action()
 {
   std_msgs::Empty emptyMsg;
-  ROS_client->cmd_vel_pub.publish(emptyMsg);
+  ROS_client->land_pub.publish(emptyMsg);
 }
 
 void Manager::JOY_CONTROL_action()
