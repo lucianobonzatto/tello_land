@@ -53,11 +53,16 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  controllers_gain.msg
+  PDPI_controller.msg
+  PD_controller.msg
+  PDPI_gain.msg
+  PD_gain.msg
+  PI_gain.msg
+  PID_gain.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -74,10 +79,10 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs   sensor_msgs   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  geometry_msgs   sensor_msgs   std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -112,7 +117,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES uav_land
   CATKIN_DEPENDS geometry_msgs mavros roscpp roslib rospy sensor_msgs std_msgs tello_driver
-# DEPENDS system_lib
+  DEPENDS system_lib
 )
 
 ###########
@@ -215,4 +220,4 @@ add_executable( manager_node
                 include/uav_land/PIDlib.cpp
 )
 target_link_libraries(manager_node ${catkin_LIBRARIES})
-# add_dependencies(manager_node uav_land_generate_messages_cpp)
+add_dependencies(manager_node uav_land_generate_messages_cpp)
