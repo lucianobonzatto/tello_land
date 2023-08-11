@@ -6,15 +6,18 @@ import numpy as np
 import cv2.aruco as aruco
 from math import pi, sin, cos
 from sensor_msgs.msg import Image
+from sensor_msgs.msg import CameraInfo
 from geometry_msgs.msg import PoseStamped
 from cv_bridge import CvBridge, CvBridgeError
 from scipy.spatial.transform import Rotation as R
 
 class ImageRepublisher:
     def __init__(self):
-        self.image_pub = rospy.Publisher('/iris/usb_cam/aruco', Image, queue_size=10)
-        self.image_sub = rospy.Subscriber('/iris/usb_cam/image_raw', Image, self.image_callback)
-        self.pose_pub = rospy.Publisher('/iris/pose', PoseStamped, queue_size=10)
+        self.image_sub = rospy.Subscriber('/tello/image_raw/raw', Image, self.image_callback)
+        self.camera_info_sub = rospy.Subscriber('/tello/image_raw/camera_info', CameraInfo, self.camera_info_callback)
+
+        self.image_pub = rospy.Publisher('/aruco/image', Image, queue_size=10)
+        self.pose_pub = rospy.Publisher('/aruco/pose', PoseStamped, queue_size=10)
 
         self.camera_matrix = np.array([[277.191356, 0.        , 320.5],
                                        [0.        , 277.191356, 240.5],
@@ -25,9 +28,15 @@ class ImageRepublisher:
         self.parameters = aruco.DetectorParameters_create()
         self.bridge = CvBridge()
 
+    def camera_info_callback(self, msg):
+        self.camera_matrix = np.array(msg.K).reshape(3, 3)
+        self.distortion_coeffs = np.array(msg.D)
+
     def image_callback(self, msg):
         image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
         markers, ids, _ = aruco.detectMarkers(image, self.dictionary, parameters=self.parameters)
+
+        print(len(markers))
 
         if len(markers) > 0:
             ids = ids.flatten()
@@ -51,8 +60,8 @@ class ImageRepublisher:
 
                 pose_msg = PoseStamped()
 
-                pose_msg.pose.position.x = tvec[1] + 0.438340129 * tvec[2]
-                pose_msg.pose.position.y = tvec[0] + 0.581929754 * tvec[2]
+                pose_msg.pose.position.x = tvec[1]
+                pose_msg.pose.position.y = tvec[0]
                 pose_msg.pose.position.z = tvec[2]
 
                 pose_msg.pose.orientation.x = rotation_matrix_euler[0]
@@ -61,7 +70,7 @@ class ImageRepublisher:
 
                 self.pose_pub.publish(pose_msg)
 
-        republished_msg = self.bridge.cv2_to_imgmsg(image, encoding='rgb8')
+        republished_msg = self.bridge.cv2_to_imgmsg(image, encoding='bgr8')
         self.image_pub.publish(republished_msg)
 
 
