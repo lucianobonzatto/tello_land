@@ -8,7 +8,7 @@ class ControllerGUI:
         self.root = root
         self.root.title("Configuração de Controladores")
         self.entries = {}
-        self.publishe = rospy.Publisher('/PID/parameters', controllers_gain, queue_size=10)
+        self.par_pub = rospy.Publisher('/PID/parameters', controllers_gain, queue_size=10)
         self.gains = controllers_gain()
 
         self.create_widgets()
@@ -115,6 +115,9 @@ class ControllerGUI:
 
         print("-----")
         print(self.gains)
+
+        # self.par_pub.pub(self.gains)
+        self.par_pub.publish(self.gains)
         
 
         # for controller_type in ["PD", "PDPI cascade", "PDPI paralel"]:
