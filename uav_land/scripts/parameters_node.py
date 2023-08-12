@@ -1,4 +1,5 @@
 import rospy
+import rospkg 
 import tkinter as tk
 from tkinter import Label, Entry, Button
 from uav_land.msg import controllers_gain
@@ -10,8 +11,10 @@ class ControllerGUI:
         self.entries = {}
         self.par_pub = rospy.Publisher('/PID/parameters', controllers_gain, queue_size=10)
         self.gains = controllers_gain()
+        self.package_path = rospkg.RosPack().get_path("uav_land")
 
         self.create_widgets()
+        self.load_gains()
 
     def create_widgets(self):
         self.label_pd = Label(self.root, text="PD")
@@ -28,6 +31,9 @@ class ControllerGUI:
 
         self.submit_button = Button(self.root, text="Aplicar", command=self.apply_gains)
         self.submit_button.grid(row=16, column=0, columnspan=15, padx=10, pady=10)
+
+        self.save_button = Button(self.root, text="save", command=self.save_gains)
+        self.save_button.grid(row=16, column=2, columnspan=15, padx=10, pady=10)
 
     def create_pd_gain_entries(self, controller_type, row_start):
         dimensions = ["x", "y", "z", "yaw"]
@@ -61,9 +67,29 @@ class ControllerGUI:
                 entry.grid(row=row_start + i + 1, column=j * 4 + 1, padx=5, pady=5)
                 self.entries[f"{controller_type}_{gain}_{dimension}"] = entry
 
-    def apply_gains(self):
-        dimensions = ["x", "y", "z", "yaw"]
+    def save_gains(self):
+        file_name = self.package_path + "/parameters/gains.txt"
+        print(file_name)
 
+        with open(file_name, 'w') as file:
+            for key, entry in self.entries.items():
+                value = entry.get()
+                file.write(f"{key}: {value}\n")
+
+    def load_gains(self):
+        file_name = self.package_path + "/parameters/gains.txt"
+        try:
+            with open(file_name, 'r') as file:
+                lines = file.readlines()
+                for line in lines:
+                    key, value = line.strip().split(":")
+                    self.entries[key].delete(0, "end")
+                    self.entries[key].insert(0, value.strip())
+        except FileNotFoundError:
+            print("Gains file not found. Using default values.")
+            pass
+
+    def apply_gains(self):
         self.gains.pd_ctrl.x.p_gain   = float(self.get_entry("PD", "P", "x"  ).get())
         self.gains.pd_ctrl.x.d_gain   = float(self.get_entry("PD", "D", "x"  ).get())
         self.gains.pd_ctrl.y.p_gain   = float(self.get_entry("PD", "P", "y"  ).get())
@@ -113,20 +139,7 @@ class ControllerGUI:
         self.gains.paralel_ctrl.yaw.pi_ctrl.p_gain = float(self.get_entry("PDPI paralel", "piP", "yaw").get())
         self.gains.paralel_ctrl.yaw.pi_ctrl.i_gain = float(self.get_entry("PDPI paralel", "piI", "yaw").get())
 
-        print("-----")
-        print(self.gains)
-
-        # self.par_pub.pub(self.gains)
         self.par_pub.publish(self.gains)
-        
-
-        # for controller_type in ["PD", "PDPI cascade", "PDPI paralel"]:
-        #     print(controller_type)
-        #     for gain in ["P", "I", "D"]:
-        #         for dimension in dimensions:
-                    # entry = self.get_entry(controller_type, gain, dimension)
-        #             gain_value = float(entry.get())
-        #             rospy.loginfo(f"Ganho {gain} ({controller_type}) {dimension}: {gain_value}")
 
     def get_entry(self, controller_type, gain, dimension):
         return self.entries[f"{controller_type}_{gain}_{dimension}"]
