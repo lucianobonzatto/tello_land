@@ -40,17 +40,12 @@ void Follow_Controller::print_parameters()
     cout << "\tKp_theta: " << Kp << "\tKd_theta: " << Kd << endl;
 }
 
-void Follow_Controller::update_parameters(float *newParameters)
+void Follow_Controller::update_parameters(uav_land::controllers_gain newParameters)
 {
-    // x_controller.setParameters(newParameters[0], newParameters[1], newParameters[2], 0);
-    // y_controller.setParameters(newParameters[3], newParameters[4], newParameters[5], 0);
-    // z_controller.setParameters(newParameters[6], newParameters[7], newParameters[8], 0);
-    // yaw_controller.setParameters(newParameters[9], newParameters[10], newParameters[11], 0);
-
-    pdController.update_x(newParameters[0], newParameters[2]);
-    pdController.update_y(newParameters[3], newParameters[5]);
-    pdController.update_z(newParameters[6], newParameters[8]);
-    pdController.update_theta(newParameters[9], newParameters[11]);
+    pdController.update_x(newParameters.pd_ctrl.x.p_gain, newParameters.pd_ctrl.x.d_gain);
+    pdController.update_y(newParameters.pd_ctrl.y.p_gain, newParameters.pd_ctrl.y.d_gain);
+    pdController.update_z(newParameters.pd_ctrl.z.p_gain, newParameters.pd_ctrl.z.d_gain);
+    pdController.update_theta(newParameters.pd_ctrl.yaw.p_gain, newParameters.pd_ctrl.yaw.d_gain);
 }
 
 geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped poseStamped)

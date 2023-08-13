@@ -17,7 +17,7 @@ void ROSClient::init(Manager *const manager)
   odom_sub = nh->subscribe<nav_msgs::Odometry>("/tello/odom", 1, &Manager::odomCallback, manager);
   pose_sub = nh->subscribe<geometry_msgs::PoseStamped>("/tello/pose", 10, &Manager::poseCallback, manager);
   status_sub = nh->subscribe<tello_driver::TelloStatus>("/tello/status", 1, &Manager::statusCallback, manager);
-  parameters_sub = nh->subscribe<std_msgs::Float32MultiArray>("/PID/parameters", 1, &Manager::parametersCallback, manager);
+  parameters_sub = nh->subscribe<uav_land::controllers_gain>("/PID/parameters", 1, &Manager::parametersCallback, manager);
 }
 
 void ROSClient::setParam(const std::string &key, double d)

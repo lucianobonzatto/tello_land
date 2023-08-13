@@ -12,7 +12,7 @@ public:
 
     void print_parameters();
     geometry_msgs::Twist get_velocity(geometry_msgs::PoseStamped poseStamped);    
-    void update_parameters(float *newParameters);
+    void update_parameters(uav_land::controllers_gain newParameters);
 
 private:
     ros::Time track_last_timestamp;

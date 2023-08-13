@@ -58,10 +58,7 @@ void Manager::update()
     break;
   }
 
-  if (!parameters.data.empty())
-  {
-    follow_controller.update_parameters(&parameters.data[0]);
-  }
+  follow_controller.update_parameters(parameters);
   if (state_machine.update_state(joy))
   {
     send_velocity(0, 0, 0, 0);
@@ -150,7 +147,7 @@ void Manager::joyCallback(const sensor_msgs::Joy::ConstPtr &msg)
   joy = *msg;
 }
 
-void Manager::parametersCallback(const std_msgs::Float32MultiArray::ConstPtr &msg)
+void Manager::parametersCallback(const uav_land::controllers_gain::ConstPtr &msg)
 {
   parameters = *msg;
 }

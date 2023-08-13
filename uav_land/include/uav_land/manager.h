@@ -23,7 +23,7 @@ public:
     void poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg);
     void odomCallback(const nav_msgs::Odometry::ConstPtr &msg);
     void joyCallback(const sensor_msgs::Joy::ConstPtr &msg);
-    void parametersCallback(const std_msgs::Float32MultiArray::ConstPtr &msg);
+    void parametersCallback(const uav_land::controllers_gain::ConstPtr &msg);
     void imuCallback(const sensor_msgs::Imu::ConstPtr &msg);
     void statusCallback(const tello_driver::TelloStatus::ConstPtr &msg);
 
@@ -33,7 +33,7 @@ private:
     nav_msgs::Odometry odom;
     geometry_msgs::PoseStamped pose;
     tello_driver::TelloStatus status;
-    std_msgs::Float32MultiArray parameters;
+    uav_land::controllers_gain parameters;
 
     ROSClient *ROS_client;
     State_Machine state_machine;
