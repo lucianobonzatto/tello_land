@@ -7,18 +7,28 @@ Follow_Controller::Follow_Controller()
     setpoint.z = 1.5;
     setpoint.theta = 0;
 
-    PID::Builder builder_pd_x;
-    PID::Builder builder_pd_y;
-    PID::Builder builder_pd_z;
-    PID::Builder builder_pd_theta;
+    PID::Builder builder;
 
-    TelloPDController controller(
-        builder_pd_x,
-        builder_pd_y,
-        builder_pd_z,
-        builder_pd_theta);
+    TelloPDController pd_controller(
+        builder,
+        builder,
+        builder,
+        builder);
+    pdController = pd_controller;
 
-    pdController = controller;
+    TelloCascadePDPIController cascade_controller(
+        builder, builder,
+        builder, builder,
+        builder, builder,
+        builder, builder);
+    cascadeController = cascade_controller;
+
+    TelloParallelPDPIController parallel_controller(
+        builder, builder,
+        builder, builder,
+        builder, builder,
+        builder, builder);
+    parallelController = parallel_controller;
 }
 
 Follow_Controller::~Follow_Controller()
