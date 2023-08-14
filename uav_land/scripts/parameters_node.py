@@ -1,7 +1,7 @@
 import rospy
 import rospkg 
 import tkinter as tk
-from tkinter import Label, Entry, Button
+from tkinter import Label, Entry, Button, Radiobutton, StringVar
 from uav_land.msg import controllers_gain
 
 class ControllerGUI:
@@ -13,58 +13,46 @@ class ControllerGUI:
         self.gains = controllers_gain()
         self.package_path = rospkg.RosPack().get_path("uav_land")
 
+        self.controller_mode = StringVar()
+        self.controller_mode.set("PD")
+
         self.create_widgets()
         self.load_gains()
 
     def create_widgets(self):
-        self.label_pd = Label(self.root, text="PD")
-        self.label_pd.grid(row=0, column=0, columnspan=1, padx=10, pady=10)
-        self.create_pd_gain_entries("PD", 1)
+        
+        pd_radio = Radiobutton(self.root, text="PD", variable=self.controller_mode, value="PD")
+        pd_radio.grid(row=0, column=0, padx=10, pady=5, sticky="w")
+        cascade_radio = Radiobutton(self.root, text="Cascade", variable=self.controller_mode, value="cascade")
+        cascade_radio.grid(row=5, column=0, padx=10, pady=5, sticky="w")
+        parallel_radio = Radiobutton(self.root, text="Parallel", variable=self.controller_mode, value="parallel")
+        parallel_radio.grid(row=11, column=0, padx=10, pady=5, sticky="w")
 
-        self.label_pdpi1 = Label(self.root, text="PDPI cascade")
-        self.label_pdpi1.grid(row=4, column=0, columnspan=1, padx=10, pady=10)
-        self.create_pdpi_gain_entries("PDPI cascade", 5)
-
-        self.label_pdpi2 = Label(self.root, text="PDPI paralel")
-        self.label_pdpi2.grid(row=10, column=0, columnspan=1, padx=10, pady=10)
-        self.create_pdpi_gain_entries("PDPI paralel", 11)
+        self.create_gain_entries("PD", ["P", "D"], 2)
+        self.create_gain_entries("Cascade", ["pdP", "pdD", "piP", "piI"], 6)
+        self.create_gain_entries("Parallel", ["pdP", "pdD", "piP", "piI"], 12)
 
         self.submit_button = Button(self.root, text="Aplicar", command=self.apply_gains)
-        self.submit_button.grid(row=16, column=0, columnspan=15, padx=10, pady=10)
+        self.submit_button.grid(row=17, column=0, columnspan=15, padx=10, pady=10)
 
         self.save_button = Button(self.root, text="save", command=self.save_gains)
-        self.save_button.grid(row=16, column=2, columnspan=15, padx=10, pady=10)
+        self.save_button.grid(row=17, column=2, columnspan=15, padx=10, pady=10)
 
-    def create_pd_gain_entries(self, controller_type, row_start):
+    def create_gain_entries(self, controller_type, gains_Text, row_start):
         dimensions = ["x", "y", "z", "yaw"]
+
+        for i, gain in enumerate(gains_Text):
+            label = Label(self.root, text=gain)
+            label.grid(row=row_start + i + 1, column=0, sticky="e")
 
         for j, dimension in enumerate(dimensions):
             label_dimension = Label(self.root, text=dimension)
-            label_dimension.grid(row=row_start, column=j * 4 + 1, padx=10, pady=5)
+            label_dimension.grid(row=row_start, column=j + 1)
 
-            for i, gain in enumerate(["P", "D"]):
-                label = Label(self.root, text=gain)
-                label.grid(row=row_start + i + 1, column=j * 4, padx=10, pady=5)
-
+            for i, gain in enumerate(gains_Text):
                 entry = Entry(self.root, width=5)
                 entry.insert(0, "0.0")
-                entry.grid(row=row_start + i + 1, column=j * 4 + 1, padx=5, pady=5)
-                self.entries[f"{controller_type}_{gain}_{dimension}"] = entry
-                
-    def create_pdpi_gain_entries(self, controller_type, row_start):
-        dimensions = ["x", "y", "z", "yaw"]
-
-        for j, dimension in enumerate(dimensions):
-            label_dimension = Label(self.root, text=dimension)
-            label_dimension.grid(row=row_start, column=j * 4 + 1, padx=10, pady=5)
-
-            for i, gain in enumerate(["pdP", "pdD", "piP", "piI"]):
-                label = Label(self.root, text=gain)
-                label.grid(row=row_start + i + 1, column=j * 4, padx=10, pady=5)
-
-                entry = Entry(self.root, width=5)
-                entry.insert(0, "0.0")
-                entry.grid(row=row_start + i + 1, column=j * 4 + 1, padx=5, pady=5)
+                entry.grid(row=row_start + i + 1, column=j + 1, padx=5, pady=5)
                 self.entries[f"{controller_type}_{gain}_{dimension}"] = entry
 
     def save_gains(self):
@@ -75,6 +63,7 @@ class ControllerGUI:
             for key, entry in self.entries.items():
                 value = entry.get()
                 file.write(f"{key}: {value}\n")
+            file.write(f"controller_mode: {self.controller_mode.get()}\n")
 
     def load_gains(self):
         file_name = self.package_path + "/parameters/gains.txt"
@@ -83,6 +72,9 @@ class ControllerGUI:
                 lines = file.readlines()
                 for line in lines:
                     key, value = line.strip().split(":")
+                    if key == "controller_mode":
+                        self.controller_mode.set(value.strip())
+                        continue
                     self.entries[key].delete(0, "end")
                     self.entries[key].insert(0, value.strip())
         except FileNotFoundError:

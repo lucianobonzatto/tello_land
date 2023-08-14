@@ -6,35 +6,36 @@ PD_P_z: 0.0
 PD_D_z: 0.0
 PD_P_yaw: 0.0
 PD_D_yaw: 0.0
-PDPI cascade_pdP_x: 1
-PDPI cascade_pdD_x: 0.0
-PDPI cascade_piP_x: 0.0
-PDPI cascade_piI_x: 0.0
-PDPI cascade_pdP_y: 0.0
-PDPI cascade_pdD_y: 0.0
-PDPI cascade_piP_y: 0.0
-PDPI cascade_piI_y: 0.0
-PDPI cascade_pdP_z: 0.0
-PDPI cascade_pdD_z: 0.0
-PDPI cascade_piP_z: 0.0
-PDPI cascade_piI_z: 0.0
-PDPI cascade_pdP_yaw: 0.0
-PDPI cascade_pdD_yaw: 0.0
-PDPI cascade_piP_yaw: 0.0
-PDPI cascade_piI_yaw: 0.0
-PDPI paralel_pdP_x: 0.0
-PDPI paralel_pdD_x: 0.0
-PDPI paralel_piP_x: 0.0
-PDPI paralel_piI_x: 0.0
-PDPI paralel_pdP_y: 0.0
-PDPI paralel_pdD_y: 0.0
-PDPI paralel_piP_y: 0.0
-PDPI paralel_piI_y: 0.0
-PDPI paralel_pdP_z: 0.0
-PDPI paralel_pdD_z: 0.0
-PDPI paralel_piP_z: 0.0
-PDPI paralel_piI_z: 0.0
-PDPI paralel_pdP_yaw: 0.0
-PDPI paralel_pdD_yaw: 0.0
-PDPI paralel_piP_yaw: 0.0
-PDPI paralel_piI_yaw: 0.0
+Cascade_pdP_x: 0.0
+Cascade_pdD_x: 0.0
+Cascade_piP_x: 0.0
+Cascade_piI_x: 0.0
+Cascade_pdP_y: 0.0
+Cascade_pdD_y: 0.0
+Cascade_piP_y: 0.0
+Cascade_piI_y: 0.0
+Cascade_pdP_z: 0.0
+Cascade_pdD_z: 0.0
+Cascade_piP_z: 0.0
+Cascade_piI_z: 0.0
+Cascade_pdP_yaw: 0.0
+Cascade_pdD_yaw: 0.0
+Cascade_piP_yaw: 0.0
+Cascade_piI_yaw: 0.0
+Parallel_pdP_x: 0.0
+Parallel_pdD_x: 0.0
+Parallel_piP_x: 0.0
+Parallel_piI_x: 0.0
+Parallel_pdP_y: 0.0
+Parallel_pdD_y: 0.0
+Parallel_piP_y: 0.0
+Parallel_piI_y: 0.0
+Parallel_pdP_z: 0.0
+Parallel_pdD_z: 0.0
+Parallel_piP_z: 0.0
+Parallel_piI_z: 0.0
+Parallel_pdP_yaw: 0.0
+Parallel_pdD_yaw: 0.0
+Parallel_piP_yaw: 0.0
+Parallel_piI_yaw: 0.0
+controller_mode: parallel
