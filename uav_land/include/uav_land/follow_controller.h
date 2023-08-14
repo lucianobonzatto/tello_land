@@ -20,6 +20,7 @@ private:
     TelloCascadePDPIController cascadeController;
     TelloParallelPDPIController parallelController;
     Pose setpoint;
+    int controller_mode;
 };
 
 #endif // FOLLOW_CONTROLLER_H

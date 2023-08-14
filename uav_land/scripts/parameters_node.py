@@ -132,7 +132,6 @@ class ControllerGUI:
         self.gains.paralel_ctrl.yaw.pi_ctrl.i_gain = float(self.get_entry("Parallel", "piI", "yaw").get())
 
         self.gains.mode = 0
-        print(self.controller_mode.get())
         if self.controller_mode.get() == "PD":
             self.gains.mode = 1
         elif self.controller_mode.get() == "Cascade":

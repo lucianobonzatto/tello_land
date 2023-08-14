@@ -6,6 +6,7 @@ Follow_Controller::Follow_Controller()
     setpoint.y = 0;
     setpoint.z = 1.5;
     setpoint.theta = 0;
+    controller_mode = 0;
 
     PID::Builder builder;
 
@@ -38,16 +39,65 @@ Follow_Controller::~Follow_Controller()
 void Follow_Controller::print_parameters()
 {
     cout << "Follow_Controller: " << endl;
+    if (controller_mode == 0)
+    {
+        cout << "\t*****" << endl;
+    }
+    else if (controller_mode == 1)
+    {
+        cout << "\tPD" << endl;
+        double Kp, Kd;
+        pdController.get_x(Kp, Kd);
+        cout << "\tKp_x: " << Kp << "\tKd_x: " << Kd << endl;
+        pdController.get_y(Kp, Kd);
+        cout << "\tKp_y: " << Kp << "\tKd_y: " << Kd << endl;
+        pdController.get_z(Kp, Kd);
+        cout << "\tKp_z: " << Kp << "\tKd_z: " << Kd << endl;
+        pdController.get_theta(Kp, Kd);
+        cout << "\tKp_theta: " << Kp << "\tKd_theta: " << Kd << endl;
+    }
+    else if (controller_mode == 2)
+    {
+        cout << "\tCascade" << endl;
+        double kp_pd, kd_pd, kp_pi, ki_pi;
+        kp_pd = kd_pd = kp_pi = ki_pi = 0;
+        cascadeController.get_x(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\tx_p_pd: " << kp_pd << "\tx_d_pd: " << kd_pd
+             << "\tx_p_pi: " << kp_pi << "\tx_i_pi: " << ki_pi << endl;
 
-    double Kp, Kd;
-    pdController.get_x(Kp, Kd);
-    cout << "\tKp_x: " << Kp << "\tKd_x: " << Kd << endl;
-    pdController.get_y(Kp, Kd);
-    cout << "\tKp_y: " << Kp << "\tKd_y: " << Kd << endl;
-    pdController.get_z(Kp, Kd);
-    cout << "\tKp_z: " << Kp << "\tKd_z: " << Kd << endl;
-    pdController.get_theta(Kp, Kd);
-    cout << "\tKp_theta: " << Kp << "\tKd_theta: " << Kd << endl;
+        cascadeController.get_y(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\ty_p_pd: " << kp_pd << "\ty_d_pd: " << kd_pd
+             << "\ty_p_pi: " << kp_pi << "\ty_i_pi: " << ki_pi << endl;
+
+        cascadeController.get_z(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\tz_p_pd: " << kp_pd << "\tz_d_pd: " << kd_pd
+             << "\tz_p_pi: " << kp_pi << "\tz_i_pi: " << ki_pi << endl;
+
+        cascadeController.get_theta(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\tt_p_pd: " << kp_pd << "\tt_d_pd: " << kd_pd
+             << "\tt_p_pi: " << kp_pi << "\tt_i_pi: " << ki_pi << endl;
+    }
+    else if (controller_mode == 3)
+    {
+        cout << "\tParallel" << endl;
+        double kp_pd, kd_pd, kp_pi, ki_pi;
+        kp_pd = kd_pd = kp_pi = ki_pi = 0;
+        parallelController.get_x(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\tx_p_pd: " << kp_pd << "\tx_d_pd: " << kd_pd
+             << "\tx_p_pi: " << kp_pi << "\tx_i_pi: " << ki_pi << endl;
+
+        parallelController.get_y(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\ty_p_pd: " << kp_pd << "\ty_d_pd: " << kd_pd
+             << "\ty_p_pi: " << kp_pi << "\ty_i_pi: " << ki_pi << endl;
+
+        parallelController.get_z(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\tz_p_pd: " << kp_pd << "\tz_d_pd: " << kd_pd
+             << "\tz_p_pi: " << kp_pi << "\tz_i_pi: " << ki_pi << endl;
+
+        parallelController.get_theta(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\tt_p_pd: " << kp_pd << "\tt_d_pd: " << kd_pd
+             << "\tt_p_pi: " << kp_pi << "\tt_i_pi: " << ki_pi << endl;
+    }
 }
 
 void Follow_Controller::update_parameters(uav_land::controllers_gain newParameters)
@@ -56,6 +106,42 @@ void Follow_Controller::update_parameters(uav_land::controllers_gain newParamete
     pdController.update_y(newParameters.pd_ctrl.y.p_gain, newParameters.pd_ctrl.y.d_gain);
     pdController.update_z(newParameters.pd_ctrl.z.p_gain, newParameters.pd_ctrl.z.d_gain);
     pdController.update_theta(newParameters.pd_ctrl.yaw.p_gain, newParameters.pd_ctrl.yaw.d_gain);
+
+    cascadeController.update_x(newParameters.cascade_ctrl.x.pd_ctrl.p_gain,
+                               newParameters.cascade_ctrl.x.pd_ctrl.d_gain,
+                               newParameters.cascade_ctrl.x.pi_ctrl.p_gain,
+                               newParameters.cascade_ctrl.x.pi_ctrl.i_gain);
+    cascadeController.update_y(newParameters.cascade_ctrl.y.pd_ctrl.p_gain,
+                               newParameters.cascade_ctrl.y.pd_ctrl.d_gain,
+                               newParameters.cascade_ctrl.y.pi_ctrl.p_gain,
+                               newParameters.cascade_ctrl.y.pi_ctrl.i_gain);
+    cascadeController.update_z(newParameters.cascade_ctrl.z.pd_ctrl.p_gain,
+                               newParameters.cascade_ctrl.z.pd_ctrl.d_gain,
+                               newParameters.cascade_ctrl.z.pi_ctrl.p_gain,
+                               newParameters.cascade_ctrl.z.pi_ctrl.i_gain);
+    cascadeController.update_theta(newParameters.cascade_ctrl.yaw.pd_ctrl.p_gain,
+                                   newParameters.cascade_ctrl.yaw.pd_ctrl.d_gain,
+                                   newParameters.cascade_ctrl.yaw.pi_ctrl.p_gain,
+                                   newParameters.cascade_ctrl.yaw.pi_ctrl.i_gain);
+
+    parallelController.update_x(newParameters.paralel_ctrl.x.pd_ctrl.p_gain,
+                                newParameters.paralel_ctrl.x.pd_ctrl.d_gain,
+                                newParameters.paralel_ctrl.x.pi_ctrl.p_gain,
+                                newParameters.paralel_ctrl.x.pi_ctrl.i_gain);
+    parallelController.update_y(newParameters.paralel_ctrl.y.pd_ctrl.p_gain,
+                                newParameters.paralel_ctrl.y.pd_ctrl.d_gain,
+                                newParameters.paralel_ctrl.y.pi_ctrl.p_gain,
+                                newParameters.paralel_ctrl.y.pi_ctrl.i_gain);
+    parallelController.update_z(newParameters.paralel_ctrl.z.pd_ctrl.p_gain,
+                                newParameters.paralel_ctrl.z.pd_ctrl.d_gain,
+                                newParameters.paralel_ctrl.z.pi_ctrl.p_gain,
+                                newParameters.paralel_ctrl.z.pi_ctrl.i_gain);
+    parallelController.update_theta(newParameters.paralel_ctrl.yaw.pd_ctrl.p_gain,
+                                    newParameters.paralel_ctrl.yaw.pd_ctrl.d_gain,
+                                    newParameters.paralel_ctrl.yaw.pi_ctrl.p_gain,
+                                    newParameters.paralel_ctrl.yaw.pi_ctrl.i_gain);
+
+    controller_mode = newParameters.mode;
 }
 
 geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped poseStamped)
