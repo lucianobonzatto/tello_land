@@ -21,6 +21,8 @@ private:
     TelloParallelPDPIController parallelController;
     Pose setpoint;
     int controller_mode;
+
+    double calc_vel(double valor);
 };
 
 #endif // FOLLOW_CONTROLLER_H
