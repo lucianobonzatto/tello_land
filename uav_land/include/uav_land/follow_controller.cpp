@@ -39,11 +39,7 @@ Follow_Controller::~Follow_Controller()
 void Follow_Controller::print_parameters()
 {
     cout << "Follow_Controller: " << endl;
-    if (controller_mode == 0)
-    {
-        cout << "\t*****" << endl;
-    }
-    else if (controller_mode == 1)
+    if (controller_mode == CONTROLERS::PD)
     {
         cout << "\tPD" << endl;
         double Kp, Kd;
@@ -56,7 +52,7 @@ void Follow_Controller::print_parameters()
         pdController.get_theta(Kp, Kd);
         cout << "\tKp_theta: " << Kp << "\tKd_theta: " << Kd << endl;
     }
-    else if (controller_mode == 2)
+    else if (controller_mode == CONTROLERS::CASCADE)
     {
         cout << "\tCascade" << endl;
         double kp_pd, kd_pd, kp_pi, ki_pi;
@@ -77,7 +73,7 @@ void Follow_Controller::print_parameters()
         cout << "\tt_p_pd: " << kp_pd << "\tt_d_pd: " << kd_pd
              << "\tt_p_pi: " << kp_pi << "\tt_i_pi: " << ki_pi << endl;
     }
-    else if (controller_mode == 3)
+    else if (controller_mode == CONTROLERS::PARALLEL)
     {
         cout << "\tParallel" << endl;
         double kp_pd, kd_pd, kp_pi, ki_pi;
@@ -97,6 +93,10 @@ void Follow_Controller::print_parameters()
         parallelController.get_theta(kp_pd, kd_pd, kp_pi, ki_pi);
         cout << "\tt_p_pd: " << kp_pd << "\tt_d_pd: " << kd_pd
              << "\tt_p_pi: " << kp_pi << "\tt_i_pi: " << ki_pi << endl;
+    }
+    else
+    {
+        cout << "\t*****" << endl;
     }
 }
 
