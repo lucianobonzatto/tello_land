@@ -23,9 +23,9 @@ class ControllerGUI:
         
         pd_radio = Radiobutton(self.root, text="PD", variable=self.controller_mode, value="PD")
         pd_radio.grid(row=0, column=0, padx=10, pady=5, sticky="w")
-        cascade_radio = Radiobutton(self.root, text="Cascade", variable=self.controller_mode, value="cascade")
+        cascade_radio = Radiobutton(self.root, text="Cascade", variable=self.controller_mode, value="Cascade")
         cascade_radio.grid(row=5, column=0, padx=10, pady=5, sticky="w")
-        parallel_radio = Radiobutton(self.root, text="Parallel", variable=self.controller_mode, value="parallel")
+        parallel_radio = Radiobutton(self.root, text="Parallel", variable=self.controller_mode, value="Parallel")
         parallel_radio.grid(row=11, column=0, padx=10, pady=5, sticky="w")
 
         self.create_gain_entries("PD", ["P", "D"], 2)
@@ -91,45 +91,55 @@ class ControllerGUI:
         self.gains.pd_ctrl.yaw.p_gain = float(self.get_entry("PD", "P", "yaw").get())
         self.gains.pd_ctrl.yaw.d_gain = float(self.get_entry("PD", "D", "yaw").get())
 
-        self.gains.cascade_ctrl.x.pd_ctrl.p_gain = float(self.get_entry("PDPI cascade", "pdP", "x").get())
-        self.gains.cascade_ctrl.x.pd_ctrl.d_gain = float(self.get_entry("PDPI cascade", "pdD", "x").get())
-        self.gains.cascade_ctrl.x.pi_ctrl.p_gain = float(self.get_entry("PDPI cascade", "piP", "x").get())
-        self.gains.cascade_ctrl.x.pi_ctrl.i_gain = float(self.get_entry("PDPI cascade", "piI", "x").get())
+        self.gains.cascade_ctrl.x.pd_ctrl.p_gain = float(self.get_entry("Cascade", "pdP", "x").get())
+        self.gains.cascade_ctrl.x.pd_ctrl.d_gain = float(self.get_entry("Cascade", "pdD", "x").get())
+        self.gains.cascade_ctrl.x.pi_ctrl.p_gain = float(self.get_entry("Cascade", "piP", "x").get())
+        self.gains.cascade_ctrl.x.pi_ctrl.i_gain = float(self.get_entry("Cascade", "piI", "x").get())
 
-        self.gains.cascade_ctrl.y.pd_ctrl.p_gain = float(self.get_entry("PDPI cascade", "pdP", "y").get())
-        self.gains.cascade_ctrl.y.pd_ctrl.d_gain = float(self.get_entry("PDPI cascade", "pdD", "y").get())
-        self.gains.cascade_ctrl.y.pi_ctrl.p_gain = float(self.get_entry("PDPI cascade", "piP", "y").get())
-        self.gains.cascade_ctrl.y.pi_ctrl.i_gain = float(self.get_entry("PDPI cascade", "piI", "y").get())
+        self.gains.cascade_ctrl.y.pd_ctrl.p_gain = float(self.get_entry("Cascade", "pdP", "y").get())
+        self.gains.cascade_ctrl.y.pd_ctrl.d_gain = float(self.get_entry("Cascade", "pdD", "y").get())
+        self.gains.cascade_ctrl.y.pi_ctrl.p_gain = float(self.get_entry("Cascade", "piP", "y").get())
+        self.gains.cascade_ctrl.y.pi_ctrl.i_gain = float(self.get_entry("Cascade", "piI", "y").get())
 
-        self.gains.cascade_ctrl.z.pd_ctrl.p_gain = float(self.get_entry("PDPI cascade", "pdP", "z").get())
-        self.gains.cascade_ctrl.z.pd_ctrl.d_gain = float(self.get_entry("PDPI cascade", "pdD", "z").get())
-        self.gains.cascade_ctrl.z.pi_ctrl.p_gain = float(self.get_entry("PDPI cascade", "piP", "z").get())
-        self.gains.cascade_ctrl.z.pi_ctrl.i_gain = float(self.get_entry("PDPI cascade", "piI", "z").get())
+        self.gains.cascade_ctrl.z.pd_ctrl.p_gain = float(self.get_entry("Cascade", "pdP", "z").get())
+        self.gains.cascade_ctrl.z.pd_ctrl.d_gain = float(self.get_entry("Cascade", "pdD", "z").get())
+        self.gains.cascade_ctrl.z.pi_ctrl.p_gain = float(self.get_entry("Cascade", "piP", "z").get())
+        self.gains.cascade_ctrl.z.pi_ctrl.i_gain = float(self.get_entry("Cascade", "piI", "z").get())
 
-        self.gains.cascade_ctrl.yaw.pd_ctrl.p_gain = float(self.get_entry("PDPI cascade", "pdP", "yaw").get())
-        self.gains.cascade_ctrl.yaw.pd_ctrl.d_gain = float(self.get_entry("PDPI cascade", "pdD", "yaw").get())
-        self.gains.cascade_ctrl.yaw.pi_ctrl.p_gain = float(self.get_entry("PDPI cascade", "piP", "yaw").get())
-        self.gains.cascade_ctrl.yaw.pi_ctrl.i_gain = float(self.get_entry("PDPI cascade", "piI", "yaw").get())
+        self.gains.cascade_ctrl.yaw.pd_ctrl.p_gain = float(self.get_entry("Cascade", "pdP", "yaw").get())
+        self.gains.cascade_ctrl.yaw.pd_ctrl.d_gain = float(self.get_entry("Cascade", "pdD", "yaw").get())
+        self.gains.cascade_ctrl.yaw.pi_ctrl.p_gain = float(self.get_entry("Cascade", "piP", "yaw").get())
+        self.gains.cascade_ctrl.yaw.pi_ctrl.i_gain = float(self.get_entry("Cascade", "piI", "yaw").get())
 
-        self.gains.paralel_ctrl.x.pd_ctrl.p_gain = float(self.get_entry("PDPI paralel", "pdP", "x").get())
-        self.gains.paralel_ctrl.x.pd_ctrl.d_gain = float(self.get_entry("PDPI paralel", "pdD", "x").get())
-        self.gains.paralel_ctrl.x.pi_ctrl.p_gain = float(self.get_entry("PDPI paralel", "piP", "x").get())
-        self.gains.paralel_ctrl.x.pi_ctrl.i_gain = float(self.get_entry("PDPI paralel", "piI", "x").get())
+        self.gains.paralel_ctrl.x.pd_ctrl.p_gain = float(self.get_entry("Parallel", "pdP", "x").get())
+        self.gains.paralel_ctrl.x.pd_ctrl.d_gain = float(self.get_entry("Parallel", "pdD", "x").get())
+        self.gains.paralel_ctrl.x.pi_ctrl.p_gain = float(self.get_entry("Parallel", "piP", "x").get())
+        self.gains.paralel_ctrl.x.pi_ctrl.i_gain = float(self.get_entry("Parallel", "piI", "x").get())
 
-        self.gains.paralel_ctrl.y.pd_ctrl.p_gain = float(self.get_entry("PDPI paralel", "pdP", "y").get())
-        self.gains.paralel_ctrl.y.pd_ctrl.d_gain = float(self.get_entry("PDPI paralel", "pdD", "y").get())
-        self.gains.paralel_ctrl.y.pi_ctrl.p_gain = float(self.get_entry("PDPI paralel", "piP", "y").get())
-        self.gains.paralel_ctrl.y.pi_ctrl.i_gain = float(self.get_entry("PDPI paralel", "piI", "y").get())
+        self.gains.paralel_ctrl.y.pd_ctrl.p_gain = float(self.get_entry("Parallel", "pdP", "y").get())
+        self.gains.paralel_ctrl.y.pd_ctrl.d_gain = float(self.get_entry("Parallel", "pdD", "y").get())
+        self.gains.paralel_ctrl.y.pi_ctrl.p_gain = float(self.get_entry("Parallel", "piP", "y").get())
+        self.gains.paralel_ctrl.y.pi_ctrl.i_gain = float(self.get_entry("Parallel", "piI", "y").get())
 
-        self.gains.paralel_ctrl.z.pd_ctrl.p_gain = float(self.get_entry("PDPI paralel", "pdP", "z").get())
-        self.gains.paralel_ctrl.z.pd_ctrl.d_gain = float(self.get_entry("PDPI paralel", "pdD", "z").get())
-        self.gains.paralel_ctrl.z.pi_ctrl.p_gain = float(self.get_entry("PDPI paralel", "piP", "z").get())
-        self.gains.paralel_ctrl.z.pi_ctrl.i_gain = float(self.get_entry("PDPI paralel", "piI", "z").get())
+        self.gains.paralel_ctrl.z.pd_ctrl.p_gain = float(self.get_entry("Parallel", "pdP", "z").get())
+        self.gains.paralel_ctrl.z.pd_ctrl.d_gain = float(self.get_entry("Parallel", "pdD", "z").get())
+        self.gains.paralel_ctrl.z.pi_ctrl.p_gain = float(self.get_entry("Parallel", "piP", "z").get())
+        self.gains.paralel_ctrl.z.pi_ctrl.i_gain = float(self.get_entry("Parallel", "piI", "z").get())
 
-        self.gains.paralel_ctrl.yaw.pd_ctrl.p_gain = float(self.get_entry("PDPI paralel", "pdP", "yaw").get())
-        self.gains.paralel_ctrl.yaw.pd_ctrl.d_gain = float(self.get_entry("PDPI paralel", "pdD", "yaw").get())
-        self.gains.paralel_ctrl.yaw.pi_ctrl.p_gain = float(self.get_entry("PDPI paralel", "piP", "yaw").get())
-        self.gains.paralel_ctrl.yaw.pi_ctrl.i_gain = float(self.get_entry("PDPI paralel", "piI", "yaw").get())
+        self.gains.paralel_ctrl.yaw.pd_ctrl.p_gain = float(self.get_entry("Parallel", "pdP", "yaw").get())
+        self.gains.paralel_ctrl.yaw.pd_ctrl.d_gain = float(self.get_entry("Parallel", "pdD", "yaw").get())
+        self.gains.paralel_ctrl.yaw.pi_ctrl.p_gain = float(self.get_entry("Parallel", "piP", "yaw").get())
+        self.gains.paralel_ctrl.yaw.pi_ctrl.i_gain = float(self.get_entry("Parallel", "piI", "yaw").get())
+
+        self.gains.mode = 0
+        print(self.controller_mode.get())
+        if self.controller_mode.get() == "PD":
+            self.gains.mode = 1
+        elif self.controller_mode.get() == "Cascade":
+            self.gains.mode = 2
+        elif self.controller_mode.get() == "Parallel":
+            self.gains.mode = 3
+
 
         self.par_pub.publish(self.gains)
 

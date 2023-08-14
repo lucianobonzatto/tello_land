@@ -38,4 +38,4 @@ Parallel_pdP_yaw: 0.0
 Parallel_pdD_yaw: 0.0
 Parallel_piP_yaw: 0.0
 Parallel_piI_yaw: 0.0
-controller_mode: parallel
+controller_mode: PD
