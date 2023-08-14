@@ -147,36 +147,49 @@ void Follow_Controller::update_parameters(uav_land::controllers_gain newParamete
 geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped poseStamped)
 {
     geometry_msgs::Twist velocity;
-    geometry_msgs::Pose pose = poseStamped.pose;
 
-    if ((pose.position.x == 0) &&
-        (pose.position.y == 0) &&
-        (pose.position.z == 0) &&
-        (pose.orientation.x == 0) &&
-        (pose.orientation.y == 0) &&
-        (pose.orientation.z == 0) &&
-        (pose.orientation.w == 0))
+    if (poseStamped.header.stamp.isZero())
     {
         return velocity;
     }
 
     Pose measurement;
-    measurement.x = pose.position.x;
-    measurement.y = pose.position.y;
-    measurement.z = pose.position.z;
-    measurement.theta = pose.orientation.x;
+    measurement.x = poseStamped.pose.position.x;
+    measurement.y = poseStamped.pose.position.y;
+    measurement.z = poseStamped.pose.position.z;
+    measurement.theta = poseStamped.pose.orientation.x;
 
-    Speed vel = pdController.control(setpoint, measurement);
+    Speed vel;
+    if (controller_mode == CONTROLERS::PD)
+    {
+        vel = pdController.control(setpoint, measurement);
+    }
+    else if (controller_mode == CONTROLERS::CASCADE)
+    {
+        // vel = cascadeController.control(setpoint, measurement);
+    }
+    else if (controller_mode == CONTROLERS::PARALLEL)
+    {
+        // Speed vel_setpoint;
+        // vel_setpoint.vx = calc_vel(measurement.x);
+        // vel_setpoint.vy = calc_vel(measurement.y);
+        // vel_setpoint.vz = calc_vel(measurement.z);
+        // vel_setpoint.vtheta = calc_vel(measurement.theta);
+
+        // Speed vel = parallelController.control(setpoint, measurement, vel_setpoint, iris_vel);
+    }
+    else
+    {
+        vel.vx = 0;
+        vel.vy = 0;
+        vel.vz = 0;
+        vel.vtheta = 0;
+    }
 
     velocity.linear.x = vel.vx;
     velocity.linear.y = vel.vy;
     velocity.linear.z = vel.vz;
     velocity.angular.z = vel.vtheta;
-
-    // cout << "x -> " << setpoint.x << "\t" << pose.position.x << "\t" << velocity.linear.x << endl;
-    // cout << "y -> " << setpoint.y << "\t" << pose.position.y << "\t" << velocity.linear.y << endl;
-    // cout << "z -> " << setpoint.z << "\t" << pose.position.z << "\t" << velocity.linear.z << endl;
-    // cout << "theta -> " << setpoint.theta << "\t" << pose.position.z << "\t" << velocity.linear.z << endl;
 
     return velocity;
 }
