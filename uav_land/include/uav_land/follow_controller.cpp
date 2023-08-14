@@ -162,14 +162,17 @@ geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped 
     Speed vel;
     if (controller_mode == CONTROLERS::PD)
     {
+        cout << "PDPDPDPDPDPDPDPD" << endl;
         vel = pdController.control(setpoint, measurement);
     }
     else if (controller_mode == CONTROLERS::CASCADE)
     {
+        cout << "cascadecascadecascadecascade" << endl;
         // vel = cascadeController.control(setpoint, measurement);
     }
     else if (controller_mode == CONTROLERS::PARALLEL)
     {
+        cout << "parallelparallelparallelparallel" << endl;
         // Speed vel_setpoint;
         // vel_setpoint.vx = calc_vel(measurement.x);
         // vel_setpoint.vy = calc_vel(measurement.y);
@@ -180,6 +183,7 @@ geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped 
     }
     else
     {
+        cout << "xxxxxxxxxxxxxxxxxxxx" << endl;
         vel.vx = 0;
         vel.vy = 0;
         vel.vz = 0;

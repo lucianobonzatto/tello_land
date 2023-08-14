@@ -7,6 +7,10 @@ windows:
       panes:
         - sleep 10; rqt_image_view
         - sleep 10; roslaunch tello_driver image_transport.launch
+  - aruco:
+      layout: tiled
+      panes:
+        - sleep 1; rosrun uav_land aruco_node.py
   - tello_driver:
       layout: tiled
       panes:

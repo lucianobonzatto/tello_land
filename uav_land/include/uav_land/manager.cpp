@@ -94,10 +94,10 @@ void Manager::JOY_CONTROL_action()
   }
   joy_last_timestamp = joy.header.stamp;
 
-  send_velocity(joy.axes[1] * joy_linear_velocity,
-                joy.axes[0] * joy_linear_velocity,
-                joy.axes[4] * joy_linear_velocity,
-                joy.axes[3] * joy_angular_velocity);
+  send_velocity(joy.axes[JOY_AXES::VERTICAL_ANALOGIC_LEFT] * joy_linear_velocity,
+                joy.axes[JOY_AXES::HORIZONTAL_ANALOGIC_LEFT] * joy_linear_velocity,
+                joy.axes[JOY_AXES::VERTICAL_ANALOGIC_RIGHT] * joy_linear_velocity,
+                joy.axes[JOY_AXES::HORIZONTAL_ANALOGIC_RIGHT] * joy_angular_velocity);
 }
 
 void Manager::LAND_CONTROL_action()
@@ -117,19 +117,28 @@ void Manager::FOLLOW_CONTROL_action()
 void Manager::send_velocity(double x_linear, double y_linear, double z_linear, double angular)
 {
   geometry_msgs::Twist velocity;
-  velocity.linear.x = x_linear;
-  velocity.linear.y = y_linear;
+  velocity.linear.x = -y_linear;
+  velocity.linear.y = x_linear;
   velocity.linear.z = z_linear;
 
   velocity.angular.x = 0;
   velocity.angular.y = 0;
-  velocity.angular.z = angular;
+  velocity.angular.z = -angular;
   ROS_client->cmd_vel_pub.publish(velocity);
 }
 
 void Manager::send_velocity(geometry_msgs::Twist velocity)
 {
-  ROS_client->cmd_vel_pub.publish(velocity);
+  geometry_msgs::Twist velocity_msg;
+  velocity.linear.x = -velocity.linear.y;
+  velocity.linear.y = velocity.linear.x;
+  velocity.linear.z = velocity.linear.z;
+
+  velocity.angular.x = 0;
+  velocity.angular.y = 0;
+  velocity.angular.z = -velocity.angular.z;
+
+  ROS_client->cmd_vel_pub.publish(velocity_msg);
 }
 
 void Manager::poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
