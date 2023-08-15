@@ -104,14 +104,20 @@ void Manager::LAND_CONTROL_action()
 {
   geometry_msgs::Twist velocity;
   velocity = land_controller.get_velocity();
-  send_velocity(velocity);
+  send_velocity(velocity.linear.x,
+                velocity.linear.y,
+                velocity.linear.z,
+                velocity.angular.z);
 }
 
 void Manager::FOLLOW_CONTROL_action()
 {
   geometry_msgs::Twist velocity;
   velocity = follow_controller.get_velocity(pose);
-  send_velocity(velocity);
+  send_velocity(velocity.linear.x,
+                velocity.linear.y,
+                velocity.linear.z,
+                velocity.angular.z);
 }
 
 void Manager::send_velocity(double x_linear, double y_linear, double z_linear, double angular)
@@ -125,20 +131,6 @@ void Manager::send_velocity(double x_linear, double y_linear, double z_linear, d
   velocity.angular.y = 0;
   velocity.angular.z = -angular;
   ROS_client->cmd_vel_pub.publish(velocity);
-}
-
-void Manager::send_velocity(geometry_msgs::Twist velocity)
-{
-  geometry_msgs::Twist velocity_msg;
-  velocity.linear.x = -velocity.linear.y;
-  velocity.linear.y = velocity.linear.x;
-  velocity.linear.z = velocity.linear.z;
-
-  velocity.angular.x = 0;
-  velocity.angular.y = 0;
-  velocity.angular.z = -velocity.angular.z;
-
-  ROS_client->cmd_vel_pub.publish(velocity_msg);
 }
 
 void Manager::poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
