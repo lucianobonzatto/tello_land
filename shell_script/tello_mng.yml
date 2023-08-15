@@ -15,4 +15,7 @@ windows:
       layout: tiled
       panes:
         - roslaunch tello_driver tello_node.launch
+  - manager:
+      layout: tiled
+      panes:
         - sleep 1; roslaunch uav_land manager.launch
