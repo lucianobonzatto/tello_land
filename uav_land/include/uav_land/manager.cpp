@@ -22,8 +22,7 @@ void Manager::Init(ROSClient *drone_control,
 void Manager::print_parameters()
 {
   cout << "================" << endl;
-  // cout << "\ttrack: " << track.header.stamp << endl;
-  // cout << "\tpose: " << pose << endl;
+  cout << "\tpose: " << pose.header.stamp << endl;
   cout << "\tjoy: " << joy.header.stamp << endl;
   cout << "\todom: " << odom.header.stamp << endl;
   cout << "\tstate: " << states_name[state_machine.get_state()] << endl;
