@@ -59,6 +59,8 @@ class ImageRepublisher:
                 print(teste)
 
                 pose_msg = PoseStamped()
+                pose_msg.header.stamp = rospy.Time.now()
+                # pose_msg.header.frame_id = "camera_frame"
 
                 pose_msg.pose.position.x = tvec[1]
                 pose_msg.pose.position.y = tvec[0]
