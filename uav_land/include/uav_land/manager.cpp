@@ -139,7 +139,22 @@ void Manager::poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
 
 void Manager::odomCallback(const nav_msgs::Odometry::ConstPtr &msg)
 {
-  odom = *msg;
+  geometry_msgs::TransformStamped transformStamped_;
+  transformStamped_.header.stamp = msg->header.stamp;
+  transformStamped_.header.frame_id = "/tello/local_origin";
+  transformStamped_.child_frame_id = "/tello/base_link";
+  transformStamped_.transform.translation.x = msg->pose.pose.position.x;
+  transformStamped_.transform.translation.y = msg->pose.pose.position.y;
+  transformStamped_.transform.translation.z = msg->pose.pose.position.z;
+  transformStamped_.transform.rotation = msg->pose.pose.orientation;
+
+  tf2::doTransform(msg->twist.twist.linear, odom.twist.twist.linear, transformStamped_);
+  
+  double temp_double = odom.twist.twist.linear.x;
+  odom.twist.twist.linear.x = odom.twist.twist.linear.y;
+  odom.twist.twist.linear.y = -odom.twist.twist.linear.x;
+  odom.twist.twist.angular = msg->twist.twist.angular;
+  odom.header.stamp = msg->header.stamp;
 }
 
 void Manager::joyCallback(const sensor_msgs::Joy::ConstPtr &msg)
