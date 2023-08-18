@@ -4,7 +4,7 @@ Follow_Controller::Follow_Controller()
 {
     setpoint.x = 0;
     setpoint.y = 0;
-    setpoint.z = 1;
+    setpoint.z = -1;
     setpoint.theta = 0;
     controller_mode = 0;
 
@@ -164,6 +164,9 @@ geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped 
     {
         cout << "PDPDPDPDPDPDPDPD" << endl;
         vel = pdController.control(setpoint, measurement);
+        vel.vx = -vel.vx;
+        vel.vy = -vel.vy;
+        vel.vz = -vel.vz;
     }
     else if (controller_mode == CONTROLERS::CASCADE)
     {

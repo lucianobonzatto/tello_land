@@ -62,9 +62,9 @@ class ImageRepublisher:
                 pose_msg.header.stamp = rospy.Time.now()
                 # pose_msg.header.frame_id = "camera_frame"
 
-                pose_msg.pose.position.x = tvec[1]
-                pose_msg.pose.position.y = tvec[0]
-                pose_msg.pose.position.z = tvec[2]
+                pose_msg.pose.position.x = -tvec[1]
+                pose_msg.pose.position.y = -tvec[0]
+                pose_msg.pose.position.z = -tvec[2]
 
                 pose_msg.pose.orientation.x = rotation_matrix_euler[0]
                 pose_msg.pose.orientation.y = rotation_matrix_euler[1]
