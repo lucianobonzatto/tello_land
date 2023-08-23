@@ -112,7 +112,13 @@ void Manager::LAND_CONTROL_action()
 void Manager::FOLLOW_CONTROL_action()
 {
   geometry_msgs::Twist velocity;
-  velocity = follow_controller.get_velocity(pose);
+  Speed drone_vel;
+  drone_vel.vx = 0;
+  drone_vel.vy = 0;
+  drone_vel.vz = 0;
+  drone_vel.vtheta = 0;
+
+  velocity = follow_controller.get_velocity(pose, drone_vel);
   send_velocity(velocity.linear.x,
                 velocity.linear.y,
                 velocity.linear.z,

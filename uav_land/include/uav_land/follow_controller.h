@@ -11,7 +11,7 @@ public:
     ~Follow_Controller();
 
     void print_parameters();
-    geometry_msgs::Twist get_velocity(geometry_msgs::PoseStamped poseStamped);    
+    geometry_msgs::Twist get_velocity(geometry_msgs::PoseStamped poseStamped, Speed drone_vel);    
     void update_parameters(uav_land::controllers_gain newParameters);
 
 private:

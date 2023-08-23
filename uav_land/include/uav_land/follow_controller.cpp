@@ -144,7 +144,7 @@ void Follow_Controller::update_parameters(uav_land::controllers_gain newParamete
     controller_mode = newParameters.mode;
 }
 
-geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped poseStamped)
+geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped poseStamped, Speed drone_vel)
 {
     geometry_msgs::Twist velocity;
 
