@@ -139,22 +139,38 @@ void Manager::poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
 
 void Manager::odomCallback(const nav_msgs::Odometry::ConstPtr &msg)
 {
-  geometry_msgs::TransformStamped transformStamped_;
-  transformStamped_.header.stamp = msg->header.stamp;
-  transformStamped_.header.frame_id = "/tello/local_origin";
-  transformStamped_.child_frame_id = "/tello/base_link";
-  transformStamped_.transform.translation.x = msg->pose.pose.position.x;
-  transformStamped_.transform.translation.y = msg->pose.pose.position.y;
-  transformStamped_.transform.translation.z = msg->pose.pose.position.z;
-  transformStamped_.transform.rotation = msg->pose.pose.orientation;
+  // geometry_msgs::TransformStamped transformStamped_;
+  // transformStamped_.transform.translation.x = 0;
+  // transformStamped_.transform.translation.y = 0;
+  // transformStamped_.transform.translation.z = 0;
+  // transformStamped_.transform.rotation = msg->pose.pose.orientation;
 
-  tf2::doTransform(msg->twist.twist.linear, odom.twist.twist.linear, transformStamped_);
+  // tf2::doTransform(msg->twist.twist.linear, odom.twist.twist.linear, transformStamped_);
+
+  // double temp_double = odom.twist.twist.linear.x;
+  // odom.twist.twist.linear.x = odom.twist.twist.linear.y;
+  // odom.twist.twist.linear.y = -odom.twist.twist.linear.x;
+  // odom.twist.twist.linear.z = odom.twist.twist.linear.z;
   
-  double temp_double = odom.twist.twist.linear.x;
-  odom.twist.twist.linear.x = odom.twist.twist.linear.y;
-  odom.twist.twist.linear.y = -odom.twist.twist.linear.x;
-  odom.twist.twist.angular = msg->twist.twist.angular;
-  odom.header.stamp = msg->header.stamp;
+  // odom.twist.twist.angular = msg->twist.twist.angular;
+  // odom.header.stamp = msg->header.stamp;
+
+  odom = *msg;
+
+  tf2::Quaternion quat;
+  tf2::fromMsg(msg->pose.pose.orientation, quat);
+  tf2::Matrix3x3 mat(quat);
+  double roll, pitch, yaw;
+  mat.getRPY(roll, pitch, yaw);
+
+  odom.twist.twist.linear.x = msg->twist.twist.linear.y * cos(yaw)
+                            + msg->twist.twist.linear.x * sin(yaw);
+
+  odom.twist.twist.linear.y = msg->twist.twist.linear.y * sin(yaw)
+                            + msg->twist.twist.linear.x * -cos(yaw);
+
+  odom.twist.twist.linear.z = msg->twist.twist.linear.z;
+  odom.twist.twist.angular.z = -msg->twist.twist.angular.z;
 }
 
 void Manager::joyCallback(const sensor_msgs::Joy::ConstPtr &msg)
