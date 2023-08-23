@@ -171,7 +171,10 @@ geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped 
     else if (controller_mode == CONTROLERS::CASCADE)
     {
         cout << "cascadecascadecascadecascade" << endl;
-        // vel = cascadeController.control(setpoint, measurement);
+        vel = cascadeController.control(setpoint, measurement, drone_vel);
+        vel.vx = -vel.vx;
+        vel.vy = -vel.vy;
+        vel.vz = -vel.vz;
     }
     else if (controller_mode == CONTROLERS::PARALLEL)
     {
