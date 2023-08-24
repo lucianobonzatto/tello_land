@@ -47,7 +47,7 @@ Follow_Controller::~Follow_Controller()
 void Follow_Controller::print_parameters()
 {
     cout << "Follow_Controller: " << endl;
-    if (controller_mode == CONTROLERS::PD)
+    if (controller_mode == CONTROLERS::_PD)
     {
         cout << "\tPD" << endl;
         double Kp, Kd;
@@ -60,7 +60,24 @@ void Follow_Controller::print_parameters()
         pdController.get_theta(Kp, Kd);
         cout << "\tKp_theta: " << Kp << "\tKd_theta: " << Kd << endl;
     }
-    else if (controller_mode == CONTROLERS::CASCADE)
+    else if (controller_mode == CONTROLERS::_PID)
+    {
+        cout << "\tPID" << endl;
+        double kp, ki, kd;
+        kp = ki = kd = 0;
+        pidController.get_x(kp, ki, kd);
+        cout << "\tx_kp: " << kp << "\tx_ki: " << ki << "\tx_kd: " << kd << endl;
+
+        pidController.get_y(kp, ki, kd);
+        cout << "\ty_kp: " << kp << "\ty_ki: " << ki << "\ty_kd: " << kd << endl;
+
+        pidController.get_z(kp, ki, kd);
+        cout << "\tz_kp: " << kp << "\tz_ki: " << ki << "\tz_kd: " << kd << endl;
+
+        pidController.get_theta(kp, ki, kd);
+        cout << "\tt_kp: " << kp << "\tt_ki: " << ki << "\tt_kd: " << kd << endl;
+    }
+    else if (controller_mode == CONTROLERS::_CASCADE)
     {
         cout << "\tCascade" << endl;
         double kp_pd, kd_pd, kp_pi, ki_pi;
@@ -81,7 +98,7 @@ void Follow_Controller::print_parameters()
         cout << "\tt_p_pd: " << kp_pd << "\tt_d_pd: " << kd_pd
              << "\tt_p_pi: " << kp_pi << "\tt_i_pi: " << ki_pi << endl;
     }
-    else if (controller_mode == CONTROLERS::PARALLEL)
+    else if (controller_mode == CONTROLERS::_PARALLEL)
     {
         cout << "\tParallel" << endl;
         double kp_pd, kd_pd, kp_pi, ki_pi;
@@ -168,15 +185,15 @@ geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped 
     measurement.theta = poseStamped.pose.orientation.x;
 
     Speed vel;
-    if (controller_mode == CONTROLERS::PD)
+    if (controller_mode == CONTROLERS::_PD)
     {
         vel = pdController.control(setpoint, measurement);
     }
-        else if (controller_mode == CONTROLERS::CASCADE)
+    else if (controller_mode == CONTROLERS::_CASCADE)
     {
         vel = cascadeController.control(setpoint, measurement, drone_vel);
     }
-    else if (controller_mode == CONTROLERS::PARALLEL)
+    else if (controller_mode == CONTROLERS::_PARALLEL)
     {
         Speed vel_setpoint;
 
