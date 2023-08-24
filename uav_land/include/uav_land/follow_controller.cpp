@@ -9,6 +9,7 @@ Follow_Controller::Follow_Controller()
     controller_mode = 0;
 
     PID::Builder builder;
+    builder.setDt(0.05);
 
     TelloPDController pd_controller(
         builder,
@@ -171,7 +172,7 @@ geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped 
     else if (controller_mode == CONTROLERS::PARALLEL)
     {
         Speed vel_setpoint;
-        
+
         vel_setpoint.vx = calc_vel(measurement.x - setpoint.x);
         vel_setpoint.vy = calc_vel(measurement.y - setpoint.y);
         vel_setpoint.vz = calc_vel(measurement.z - setpoint.z);
@@ -236,7 +237,7 @@ double Follow_Controller::calc_vel(double valor_in)
         // Trate outros casos se necessário
         return_value = valor;
     }
-    if(return_value < 0)
+    if (return_value < 0)
         return_value = 0;
 
     if (valor_in > 0)
