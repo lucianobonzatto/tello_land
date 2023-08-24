@@ -31,6 +31,13 @@ Follow_Controller::Follow_Controller()
         builder, builder,
         builder, builder);
     parallelController = parallel_controller;
+
+    TelloPIDController pid_Controller(
+        builder,
+        builder,
+        builder,
+        builder);
+    pidController = pidController;
 }
 
 Follow_Controller::~Follow_Controller()
@@ -165,7 +172,7 @@ geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped 
     {
         vel = pdController.control(setpoint, measurement);
     }
-    else if (controller_mode == CONTROLERS::CASCADE)
+        else if (controller_mode == CONTROLERS::CASCADE)
     {
         vel = cascadeController.control(setpoint, measurement, drone_vel);
     }

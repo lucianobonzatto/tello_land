@@ -19,6 +19,7 @@ private:
     TelloPDController pdController;
     TelloCascadePDPIController cascadeController;
     TelloParallelPDPIController parallelController;
+    TelloPIDController pidController;
     Pose setpoint;
     int controller_mode;
 
