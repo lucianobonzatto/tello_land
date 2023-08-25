@@ -175,7 +175,9 @@ include_directories(
  catkin_install_python(PROGRAMS
   scripts/parameters_node.py
   scripts/aruco_node.py
-   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  scripts/udp_sender_node.py
+  scripts/udp_receiver_node.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
 
