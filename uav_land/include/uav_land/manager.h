@@ -47,7 +47,6 @@ private:
     void LAND_CONTROL_action();
     void FOLLOW_CONTROL_action();
     void send_velocity(double x_linear, double y_linear, double z_linear, double angular);
-    void send_velocity(geometry_msgs::Twist velocity);
 
     // joy parameters
     ros::Time joy_last_timestamp;

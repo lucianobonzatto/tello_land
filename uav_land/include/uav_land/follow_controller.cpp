@@ -4,11 +4,12 @@ Follow_Controller::Follow_Controller()
 {
     setpoint.x = 0;
     setpoint.y = 0;
-    setpoint.z = 1.5;
+    setpoint.z = 1;
     setpoint.theta = 0;
     controller_mode = 0;
 
     PID::Builder builder;
+    builder.setDt(0.05);
 
     TelloPDController pd_controller(
         builder,
@@ -144,7 +145,7 @@ void Follow_Controller::update_parameters(uav_land::controllers_gain newParamete
     controller_mode = newParameters.mode;
 }
 
-geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped poseStamped)
+geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped poseStamped, Speed drone_vel)
 {
     geometry_msgs::Twist velocity;
 
@@ -154,32 +155,32 @@ geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped 
     }
 
     Pose measurement;
-    measurement.x = poseStamped.pose.position.x;
-    measurement.y = poseStamped.pose.position.y;
-    measurement.z = poseStamped.pose.position.z;
+    measurement.x = -poseStamped.pose.position.x;
+    measurement.y = -poseStamped.pose.position.y;
+    measurement.z = -poseStamped.pose.position.z;
     measurement.theta = poseStamped.pose.orientation.x;
 
     Speed vel;
     if (controller_mode == CONTROLERS::PD)
     {
-        cout << "PDPDPDPDPDPDPDPD" << endl;
         vel = pdController.control(setpoint, measurement);
     }
     else if (controller_mode == CONTROLERS::CASCADE)
     {
-        cout << "cascadecascadecascadecascade" << endl;
-        // vel = cascadeController.control(setpoint, measurement);
+        vel = cascadeController.control(setpoint, measurement, drone_vel);
     }
     else if (controller_mode == CONTROLERS::PARALLEL)
     {
-        cout << "parallelparallelparallelparallel" << endl;
-        // Speed vel_setpoint;
-        // vel_setpoint.vx = calc_vel(measurement.x);
-        // vel_setpoint.vy = calc_vel(measurement.y);
-        // vel_setpoint.vz = calc_vel(measurement.z);
-        // vel_setpoint.vtheta = calc_vel(measurement.theta);
+        Speed vel_setpoint;
 
-        // Speed vel = parallelController.control(setpoint, measurement, vel_setpoint, iris_vel);
+        vel_setpoint.vx = calc_vel(measurement.x - setpoint.x);
+        vel_setpoint.vy = calc_vel(measurement.y - setpoint.y);
+        vel_setpoint.vz = calc_vel(measurement.z - setpoint.z);
+        vel_setpoint.vtheta = calc_vel(measurement.theta - setpoint.theta);
+        cout << "measurement: (" << measurement.x << ", " << measurement.y << ", " << measurement.z << ", " << measurement.theta << ")" << endl;
+        cout << "vel_setpoint: (" << vel_setpoint.vx << ", " << vel_setpoint.vy << ", " << vel_setpoint.vz << ", " << vel_setpoint.vtheta << ")" << endl;
+
+        Speed vel = parallelController.control(setpoint, measurement, vel_setpoint, drone_vel);
     }
     else
     {
@@ -236,6 +237,8 @@ double Follow_Controller::calc_vel(double valor_in)
         // Trate outros casos se necessário
         return_value = valor;
     }
+    if (return_value < 0)
+        return_value = 0;
 
     if (valor_in > 0)
         return_value = -return_value;

@@ -22,8 +22,7 @@ void Manager::Init(ROSClient *drone_control,
 void Manager::print_parameters()
 {
   cout << "================" << endl;
-  // cout << "\ttrack: " << track.header.stamp << endl;
-  // cout << "\tpose: " << pose << endl;
+  cout << "\tpose: " << pose.header.stamp << endl;
   cout << "\tjoy: " << joy.header.stamp << endl;
   cout << "\todom: " << odom.header.stamp << endl;
   cout << "\tstate: " << states_name[state_machine.get_state()] << endl;
@@ -104,14 +103,26 @@ void Manager::LAND_CONTROL_action()
 {
   geometry_msgs::Twist velocity;
   velocity = land_controller.get_velocity();
-  send_velocity(velocity);
+  send_velocity(velocity.linear.x,
+                velocity.linear.y,
+                velocity.linear.z,
+                velocity.angular.z);
 }
 
 void Manager::FOLLOW_CONTROL_action()
 {
   geometry_msgs::Twist velocity;
-  velocity = follow_controller.get_velocity(pose);
-  send_velocity(velocity);
+  Speed drone_vel;
+  drone_vel.vx = 0;
+  drone_vel.vy = 0;
+  drone_vel.vz = 0;
+  drone_vel.vtheta = 0;
+
+  velocity = follow_controller.get_velocity(pose, drone_vel);
+  send_velocity(velocity.linear.x,
+                velocity.linear.y,
+                velocity.linear.z,
+                velocity.angular.z);
 }
 
 void Manager::send_velocity(double x_linear, double y_linear, double z_linear, double angular)
@@ -127,20 +138,6 @@ void Manager::send_velocity(double x_linear, double y_linear, double z_linear, d
   ROS_client->cmd_vel_pub.publish(velocity);
 }
 
-void Manager::send_velocity(geometry_msgs::Twist velocity)
-{
-  geometry_msgs::Twist velocity_msg;
-  velocity.linear.x = -velocity.linear.y;
-  velocity.linear.y = velocity.linear.x;
-  velocity.linear.z = velocity.linear.z;
-
-  velocity.angular.x = 0;
-  velocity.angular.y = 0;
-  velocity.angular.z = -velocity.angular.z;
-
-  ROS_client->cmd_vel_pub.publish(velocity_msg);
-}
-
 void Manager::poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
 {
   pose = *msg;
@@ -148,7 +145,38 @@ void Manager::poseCallback(const geometry_msgs::PoseStamped::ConstPtr &msg)
 
 void Manager::odomCallback(const nav_msgs::Odometry::ConstPtr &msg)
 {
+  // geometry_msgs::TransformStamped transformStamped_;
+  // transformStamped_.transform.translation.x = 0;
+  // transformStamped_.transform.translation.y = 0;
+  // transformStamped_.transform.translation.z = 0;
+  // transformStamped_.transform.rotation = msg->pose.pose.orientation;
+
+  // tf2::doTransform(msg->twist.twist.linear, odom.twist.twist.linear, transformStamped_);
+
+  // double temp_double = odom.twist.twist.linear.x;
+  // odom.twist.twist.linear.x = odom.twist.twist.linear.y;
+  // odom.twist.twist.linear.y = -odom.twist.twist.linear.x;
+  // odom.twist.twist.linear.z = odom.twist.twist.linear.z;
+  
+  // odom.twist.twist.angular = msg->twist.twist.angular;
+  // odom.header.stamp = msg->header.stamp;
+
   odom = *msg;
+
+  tf2::Quaternion quat;
+  tf2::fromMsg(msg->pose.pose.orientation, quat);
+  tf2::Matrix3x3 mat(quat);
+  double roll, pitch, yaw;
+  mat.getRPY(roll, pitch, yaw);
+
+  odom.twist.twist.linear.x = msg->twist.twist.linear.y * cos(yaw)
+                            + msg->twist.twist.linear.x * sin(yaw);
+
+  odom.twist.twist.linear.y = msg->twist.twist.linear.y * sin(yaw)
+                            + msg->twist.twist.linear.x * -cos(yaw);
+
+  odom.twist.twist.linear.z = msg->twist.twist.linear.z;
+  odom.twist.twist.angular.z = -msg->twist.twist.angular.z;
 }
 
 void Manager::joyCallback(const sensor_msgs::Joy::ConstPtr &msg)
