@@ -151,11 +151,11 @@ class ControllerGUI:
         self.gains.mode = 0
         if self.controller_mode.get() == "PD":
             self.gains.mode = 1
-        if self.controller_mode.get() == "PID":
-            self.gains.mode = 2
         elif self.controller_mode.get() == "Cascade":
-            self.gains.mode = 3
+            self.gains.mode = 2
         elif self.controller_mode.get() == "Parallel":
+            self.gains.mode = 3
+        if self.controller_mode.get() == "PID":
             self.gains.mode = 4
 
 
