@@ -99,17 +99,17 @@ enum CONTROLERS
 {
     _NENHUM = 0,
     _PD,
-    _PID,
     _CASCADE,
     _PARALLEL,
+    _PID,
 };
 
 static std::string controlers_name[6] = {
     "NENHUM",
     "PD",
-    "PID",
     "CASCADE",
     "PARALLEL"
+    "PID",
 };
 
 #endif
