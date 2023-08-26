@@ -1,4 +1,5 @@
 uav_land/PD_controller pd_ctrl
+uav_land/PID_controller pid_ctrl
 uav_land/PDPI_controller paralel_ctrl
 uav_land/PDPI_controller cascade_ctrl
 int32 mode

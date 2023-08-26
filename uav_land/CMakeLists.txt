@@ -57,6 +57,7 @@ add_message_files(
   FILES
   controllers_gain.msg
   PDPI_controller.msg
+  PID_controller.msg
   PD_controller.msg
   PDPI_gain.msg
   PD_gain.msg
