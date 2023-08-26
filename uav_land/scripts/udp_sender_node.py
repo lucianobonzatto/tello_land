@@ -2,35 +2,31 @@
 
 import rospy
 import socket
+import struct
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Header
 from rospy.numpy_msg import numpy_msg
 
-def publish_odom(udp_data):
-    odom_msg = Odometry()
-    odom_msg.deserialize(udp_data)
+def odom_callback(odom_msg):
+    linear = odom_msg.twist.twist.linear
+    angular = odom_msg.twist.twist.angular
+    velocity = [linear.x, linear.y, linear.z, angular.z]
+    velocity_bytes = struct.pack('ffff', *velocity)
 
-    # Publicar a mensagem de odometria
-    odom_pub.publish(odom_msg)
-
-def udp_listener():
-    udp_ip = "0.0.0.0"  # Escuta em todos os endereços de IP
-    udp_port = 12345   # Porta UDP para escuta
-
-    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    udp_socket.bind((udp_ip, udp_port))
-
-    rospy.loginfo("UDP listener is now listening on {}:{}".format(udp_ip, udp_port))
-
-    while not rospy.is_shutdown():
-        udp_data, udp_addr = udp_socket.recvfrom(4096)
-        publish_odom(udp_data)
-
-    udp_socket.close()
+    print(velocity)
+    print(velocity_bytes)
+    udp_socket.sendto(velocity_bytes, (udp_ip, udp_port))
 
 if __name__ == '__main__':
-    rospy.init_node('udp_to_odom')
+    rospy.init_node('odom_udp_sender')
 
-    odom_pub = rospy.Publisher("/received_odom", Odometry, queue_size=10)
+    udp_ip = "127.0.0.1"  # Endereço IP do destino UDP
+    udp_port = 9001      # Porta UDP do destino
 
-    udp_listener()
+    udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    rospy.Subscriber("/odom", Odometry, odom_callback)
+
+    rospy.spin()
+
+    udp_socket.close()
