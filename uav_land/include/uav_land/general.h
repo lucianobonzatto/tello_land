@@ -97,10 +97,11 @@ static std::string states_name[6] = {
 
 enum CONTROLERS
 {
-    NENHUM = 0,
-    PD,
-    CASCADE,
-    PARALLEL,
+    _NENHUM = 0,
+    _PD,
+    _CASCADE,
+    _PARALLEL,
+    _PID,
 };
 
 static std::string controlers_name[6] = {
@@ -108,6 +109,7 @@ static std::string controlers_name[6] = {
     "PD",
     "CASCADE",
     "PARALLEL"
+    "PID",
 };
 
 #endif

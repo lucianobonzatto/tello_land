@@ -127,6 +127,11 @@ void Manager::FOLLOW_CONTROL_action()
 
 void Manager::send_velocity(double x_linear, double y_linear, double z_linear, double angular)
 {
+  cout << "x_linear: " << x_linear
+       << "\ty_linear: " << y_linear
+       << "\tz_linear: " << z_linear
+       << "\tangular: " << angular << endl;
+
   geometry_msgs::Twist velocity;
   velocity.linear.x = -y_linear;
   velocity.linear.y = x_linear;
@@ -152,7 +157,7 @@ void Manager::odomCallback(const nav_msgs::Odometry::ConstPtr &msg)
   // transformStamped_.transform.rotation = msg->pose.pose.orientation;
 
   // tf2::doTransform(msg->twist.twist.linear, odom.twist.twist.linear, transformStamped_);
-
+  
   // double temp_double = odom.twist.twist.linear.x;
   // odom.twist.twist.linear.x = odom.twist.twist.linear.y;
   // odom.twist.twist.linear.y = -odom.twist.twist.linear.x;
