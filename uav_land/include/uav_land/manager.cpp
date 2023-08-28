@@ -58,6 +58,7 @@ void Manager::update()
   }
 
   follow_controller.update_parameters(parameters);
+  land_controller.update_parameters(parameters);
   if (state_machine.update_state(joy))
   {
     send_velocity(0, 0, 0, 0);
@@ -102,7 +103,13 @@ void Manager::JOY_CONTROL_action()
 void Manager::LAND_CONTROL_action()
 {
   geometry_msgs::Twist velocity;
-  velocity = land_controller.get_velocity();
+  Speed drone_vel;
+  drone_vel.vx = 0;
+  drone_vel.vy = 0;
+  drone_vel.vz = 0;
+  drone_vel.vtheta = 0;
+
+  velocity = follow_controller.get_velocity(pose, drone_vel);
   send_velocity(velocity.linear.x,
                 velocity.linear.y,
                 velocity.linear.z,
