@@ -108,8 +108,8 @@ static std::string controlers_name[6] = {
     "NENHUM",
     "PD",
     "CASCADE",
-    "PARALLEL"
-    "PID",
+    "PARALLEL",
+    "PID"
 };
 
 #endif
