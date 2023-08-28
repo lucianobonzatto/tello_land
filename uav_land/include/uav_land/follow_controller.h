@@ -15,7 +15,6 @@ public:
     void update_parameters(uav_land::controllers_gain newParameters);
 
 private:
-    ros::Time track_last_timestamp;
     TelloPDController pdController;
     TelloCascadePDPIController cascadeController;
     TelloParallelPDPIController parallelController;
