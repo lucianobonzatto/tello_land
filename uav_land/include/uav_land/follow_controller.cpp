@@ -189,7 +189,7 @@ geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped 
     {
         vel = pdController.control(setpoint, measurement);
     }
-    if (controller_mode == CONTROLERS::_PID)
+    else if (controller_mode == CONTROLERS::_PID)
     {
         vel = pidController.control(setpoint, measurement);
     }

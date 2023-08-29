@@ -101,7 +101,7 @@ enum CONTROLERS
     _PD,
     _CASCADE,
     _PARALLEL,
-    _PID,
+    _PID
 };
 
 static std::string controlers_name[6] = {
