@@ -1,5 +1,8 @@
+import os
 import rospy
 import rospkg 
+import datetime
+import subprocess
 import tkinter as tk
 from tkinter import Label, Entry, Button, Radiobutton, StringVar
 from uav_land.msg import controllers_gain
@@ -20,7 +23,6 @@ class ControllerGUI:
         self.load_gains()
 
     def create_widgets(self):
-        
         pd_radio = Radiobutton(self.root, text="PD", variable=self.controller_mode, value="PD")
         pd_radio.grid(row=0, column=0, padx=10, pady=5, sticky="w")
         pid_radio = Radiobutton(self.root, text="PID", variable=self.controller_mode, value="PID")
@@ -37,10 +39,19 @@ class ControllerGUI:
         self.create_gain_entries("Parallel", ["pdP", "pdD", "piP", "piI"], 10, 11)
 
         self.submit_button = Button(self.root, text="Aplicar", command=self.apply_gains)
-        self.submit_button.grid(row=18, column=0, columnspan=15, padx=10, pady=10)
+        self.submit_button.grid(row=11, column=20)
 
         self.save_button = Button(self.root, text="save", command=self.save_gains)
-        self.save_button.grid(row=18, column=2, columnspan=15, padx=10, pady=10)
+        self.save_button.grid(row=12, column=20)
+
+        self.start_bag_button = Button(self.root, text="start_bag", command=self.start_bag)
+        self.start_bag_button.grid(row=13, column=20)
+
+        self.stop_bag_button = Button(self.root, text="stop_bag", command=self.stop_bag)
+        self.stop_bag_button.grid(row=14, column=20)
+
+        self.entry_text = Entry(self.root, width=15)
+        self.entry_text.grid(row=15, column= 20, padx=5, pady=5)
 
     def create_gain_entries(self, controller_type, gains_Text, row_start, column_start):
         dimensions = ["x", "y", "z", "yaw"]
@@ -68,6 +79,25 @@ class ControllerGUI:
                 value = entry.get()
                 file.write(f"{key}: {value}\n")
             file.write(f"controller_mode: {self.controller_mode.get()}\n")
+
+    def start_bag(self):
+        rosbag_command = f"rosnode kill rosbag_node"
+        process = subprocess.Popen(rosbag_command, shell=True)
+        process.wait()
+
+        bag_filename = os.path.expanduser('~/bag/tello/') + self.controller_mode.get()
+        if not os.path.exists(bag_filename):
+            os.mkdir(bag_filename)
+
+        bag_filename = bag_filename + "/" + self.entry_text.get()
+        rosbag_command = f"rosbag record -o {bag_filename} -a __name:=rosbag_node"
+
+        subprocess.Popen(rosbag_command, shell=True)
+
+    def stop_bag(self):
+        rosbag_command = f"rosnode kill rosbag_node"
+        process = subprocess.Popen(rosbag_command, shell=True)
+        process.wait()
 
     def load_gains(self):
         file_name = self.package_path + "/parameters/gains.txt"
