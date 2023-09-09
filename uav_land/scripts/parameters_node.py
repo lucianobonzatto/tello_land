@@ -4,7 +4,7 @@ import rospkg
 import datetime
 import subprocess
 import tkinter as tk
-from tkinter import Label, Entry, Button, Radiobutton, StringVar
+from tkinter import Label, Entry, Button, Radiobutton, StringVar, Scale
 from uav_land.msg import controllers_gain
 
 class ControllerGUI:
@@ -52,6 +52,10 @@ class ControllerGUI:
 
         self.entry_text = Entry(self.root, width=15)
         self.entry_text.grid(row=15, column= 20, padx=5, pady=5)
+
+        self.scale = Scale(self.root, from_=0.0, to=2.0, resolution=0.01, orient="horizontal", length=400)
+        self.scale.set(1.0)
+        self.scale.grid(row=15, column=1, columnspan=10)
 
     def create_gain_entries(self, controller_type, gains_Text, row_start, column_start):
         dimensions = ["x", "y", "z", "yaw"]
@@ -177,6 +181,8 @@ class ControllerGUI:
         self.gains.paralel_ctrl.yaw.pd_ctrl.d_gain = float(self.get_entry("Parallel", "pdD", "yaw").get())
         self.gains.paralel_ctrl.yaw.pi_ctrl.p_gain = float(self.get_entry("Parallel", "piP", "yaw").get())
         self.gains.paralel_ctrl.yaw.pi_ctrl.i_gain = float(self.get_entry("Parallel", "piI", "yaw").get())
+        self.gains.altitude = self.scale.get()
+        print(self.gains.altitude)
 
         self.gains.mode = 0
         if self.controller_mode.get() == "PD":
