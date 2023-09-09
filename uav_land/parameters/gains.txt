@@ -42,12 +42,12 @@ Parallel_pdP_y: 1
 Parallel_pdD_y: 0.25
 Parallel_piP_y: 0.2
 Parallel_piI_y: 0
-Parallel_pdP_z: 1
+Parallel_pdP_z: 4
 Parallel_pdD_z: 1.5
-Parallel_piP_z: 0.5
-Parallel_piI_z: 1
+Parallel_piP_z: 0.3
+Parallel_piI_z: 0
 Parallel_pdP_yaw: 1
 Parallel_pdD_yaw: 0.9
 Parallel_piP_yaw: 0.6
 Parallel_piI_yaw: 1
-controller_mode: Cascade
+controller_mode: Parallel
