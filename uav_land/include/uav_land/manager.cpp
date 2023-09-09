@@ -23,9 +23,15 @@ void Manager::print_parameters()
 {
   cout << "================" << endl;
   cout << "\tpose: " << pose.header.stamp << endl;
+  cout << "\tx: " << pose.pose.position.x
+       << "\ty: " << pose.pose.position.y
+       << "\tz: " << pose.pose.position.z
+       << "\ttheta: " << pose.pose.orientation.x << endl;
+
   cout << "\tjoy: " << joy.header.stamp << endl;
   cout << "\todom: " << odom.header.stamp << endl;
   cout << "\tstate: " << states_name[state_machine.get_state()] << endl;
+
   follow_controller.print_parameters();
   land_controller.print_parameters();
 }
@@ -164,12 +170,12 @@ void Manager::odomCallback(const nav_msgs::Odometry::ConstPtr &msg)
   // transformStamped_.transform.rotation = msg->pose.pose.orientation;
 
   // tf2::doTransform(msg->twist.twist.linear, odom.twist.twist.linear, transformStamped_);
-  
+
   // double temp_double = odom.twist.twist.linear.x;
   // odom.twist.twist.linear.x = odom.twist.twist.linear.y;
   // odom.twist.twist.linear.y = -odom.twist.twist.linear.x;
   // odom.twist.twist.linear.z = odom.twist.twist.linear.z;
-  
+
   // odom.twist.twist.angular = msg->twist.twist.angular;
   // odom.header.stamp = msg->header.stamp;
 
@@ -181,11 +187,9 @@ void Manager::odomCallback(const nav_msgs::Odometry::ConstPtr &msg)
   double roll, pitch, yaw;
   mat.getRPY(roll, pitch, yaw);
 
-  odom.twist.twist.linear.x = msg->twist.twist.linear.y * cos(yaw)
-                            + msg->twist.twist.linear.x * sin(yaw);
+  odom.twist.twist.linear.x = msg->twist.twist.linear.y * cos(yaw) + msg->twist.twist.linear.x * sin(yaw);
 
-  odom.twist.twist.linear.y = msg->twist.twist.linear.y * sin(yaw)
-                            + msg->twist.twist.linear.x * -cos(yaw);
+  odom.twist.twist.linear.y = msg->twist.twist.linear.y * sin(yaw) + msg->twist.twist.linear.x * -cos(yaw);
 
   odom.twist.twist.linear.z = msg->twist.twist.linear.z;
   odom.twist.twist.angular.z = -msg->twist.twist.angular.z;

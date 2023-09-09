@@ -182,7 +182,6 @@ class ControllerGUI:
         self.gains.paralel_ctrl.yaw.pi_ctrl.p_gain = float(self.get_entry("Parallel", "piP", "yaw").get())
         self.gains.paralel_ctrl.yaw.pi_ctrl.i_gain = float(self.get_entry("Parallel", "piI", "yaw").get())
         self.gains.altitude = self.scale.get()
-        print(self.gains.altitude)
 
         self.gains.mode = 0
         if self.controller_mode.get() == "PD":
@@ -193,7 +192,6 @@ class ControllerGUI:
             self.gains.mode = 3
         if self.controller_mode.get() == "PID":
             self.gains.mode = 4
-
 
         self.par_pub.publish(self.gains)
 
