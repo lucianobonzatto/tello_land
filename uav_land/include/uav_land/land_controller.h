@@ -22,6 +22,7 @@ private:
     Pose setpoint;
     int controller_mode;
 
+    Speed get_align_velocity(Pose poseMeasurement, Speed drone_vel);
     double calc_vel(double valor_in);
 };
 

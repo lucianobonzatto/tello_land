@@ -88,13 +88,43 @@ geometry_msgs::Twist Land_Controller::get_velocity(geometry_msgs::PoseStamped po
     return velocity;
 }
 
-Speed Land_Controller::get_align_velocity(Pose poseStamped, Speed drone_vel)
+Speed Land_Controller::get_align_velocity(Pose poseMeasurement, Speed drone_vel)
 {
     Speed vel;
-    vel.vx = 0;
-    vel.vy = 0;
-    vel.vz = 0;
-    vel.vtheta = 0;
+
+    if (controller_mode == CONTROLERS::_PD)
+    {
+        vel = pdController.control(setpoint, poseMeasurement);
+    }
+    else if (controller_mode == CONTROLERS::_PID)
+    {
+        vel = pidController.control(setpoint, poseMeasurement);
+    }
+    else if (controller_mode == CONTROLERS::_CASCADE)
+    {
+        vel = cascadeController.control(setpoint, poseMeasurement, drone_vel);
+    }
+    else if (controller_mode == CONTROLERS::_PARALLEL)
+    {
+        Speed vel_setpoint;
+
+        vel_setpoint.vx = calc_vel(poseMeasurement.x - setpoint.x);
+        vel_setpoint.vy = calc_vel(poseMeasurement.y - setpoint.y);
+        vel_setpoint.vz = calc_vel(poseMeasurement.z - setpoint.z);
+        vel_setpoint.vtheta = calc_vel(poseMeasurement.theta - setpoint.theta);
+        cout << "measurement: (" << poseMeasurement.x << ", " << poseMeasurement.y << ", " << poseMeasurement.z << ", " << poseMeasurement.theta << ")" << endl;
+        cout << "vel_setpoint: (" << vel_setpoint.vx << ", " << vel_setpoint.vy << ", " << vel_setpoint.vz << ", " << vel_setpoint.vtheta << ")" << endl;
+
+        Speed vel = parallelController.control(setpoint, poseMeasurement, vel_setpoint, drone_vel);
+    }
+    else
+    {
+        cout << "xxxxxxxxxxxxxxxxxxxx" << endl;
+        vel.vx = 0;
+        vel.vy = 0;
+        vel.vz = 0;
+        vel.vtheta = 0;
+    }
 
     return vel;
 }
