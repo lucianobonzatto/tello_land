@@ -98,3 +98,50 @@ Speed Land_Controller::get_align_velocity(Pose poseStamped, Speed drone_vel)
 
     return vel;
 }
+
+double Land_Controller::calc_vel(double valor_in)
+{
+    const double MAX = 1.5;    // Valor máximo permitido
+    const double MIN = 0.1;    // Valor mínimo permitido
+    double valorRetorno = 0.6; // Valor a ser retornado
+    double return_value;
+    double valor = valor_in;
+    if (valor_in < 0)
+        valor = -valor;
+
+    if (valor >= MIN && valor <= MAX)
+    {
+        return_value = valorRetorno;
+    }
+    else if (valor < MIN)
+    {
+        double slope = valorRetorno / (MIN - 0.0); // Inclinação da reta
+        double intercept = -slope * 0.0;           // Intercepto da reta
+        return_value = slope * valor + intercept;
+    }
+    else if (valor > MAX)
+    {
+        if (valor == 2 * MAX)
+        {
+            return_value = 0.0;
+        }
+        else
+        {
+            double slope = -valorRetorno / (2 * MAX - MAX); // Inclinação da reta
+            double intercept = -slope * MAX + valorRetorno; // Intercepto da reta
+            return_value = slope * valor + intercept;
+        }
+    }
+    else
+    {
+        // Trate outros casos se necessário
+        return_value = valor;
+    }
+    if (return_value < 0)
+        return_value = 0;
+
+    if (valor_in > 0)
+        return_value = -return_value;
+
+    return return_value;
+}
