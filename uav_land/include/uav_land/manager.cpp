@@ -100,6 +100,42 @@ void Manager::JOY_CONTROL_action()
   }
   joy_last_timestamp = joy.header.stamp;
 
+  if (joy.axes[JOY_AXES::VERTICAL_ARROW] != 0)
+  {
+    send_velocity(joy.axes[JOY_AXES::VERTICAL_ARROW] * joy_linear_velocity, 0, 0, 0);
+    return;
+  }
+
+  if (joy.axes[JOY_AXES::HORIZONTAL_ARROW] != 0)
+  {
+    send_velocity(0, joy.axes[JOY_AXES::HORIZONTAL_ARROW] * joy_linear_velocity, 0, 0);
+    return;
+  }
+
+  if (joy.buttons[JOY_BUTTONS::RB] != 0)
+  {
+    send_velocity(0, 0, 0, -joy_angular_velocity);
+    return;
+  }
+
+  if (joy.buttons[JOY_BUTTONS::LB] != 0)
+  {
+    send_velocity(0, 0, 0, joy_angular_velocity);
+    return;
+  }
+
+  if (joy.buttons[JOY_BUTTONS::ANALOGIC_LEFT] != 0)
+  {
+    send_velocity(0, 0, -joy_linear_velocity, 0);
+    return;
+  }
+
+  if (joy.buttons[JOY_BUTTONS::ANALOGIC_RIGHT] != 0)
+  {
+    send_velocity(0, 0, joy_linear_velocity, 0);
+    return;
+  }
+
   send_velocity(joy.axes[JOY_AXES::VERTICAL_ANALOGIC_LEFT] * joy_linear_velocity,
                 joy.axes[JOY_AXES::HORIZONTAL_ANALOGIC_LEFT] * joy_linear_velocity,
                 joy.axes[JOY_AXES::VERTICAL_ANALOGIC_RIGHT] * joy_linear_velocity,
