@@ -10,37 +10,8 @@ def ler_csv(nome_arquivo):
         print("Arquivo não encontrado.")
         return None
 
-def plot_grafico2d(ax, vel_uav, cmd_vel):
-    # vel_uav = vel_uav.sort_values(by='Time')
-    vel_uav["Time"] -= vel_uav["Time"][0]
-
-    time_x = [0.67, 0.80]
-    time_y = [0.00, 0.08]
-    time_z = [0.17, 0.23]
-    time_r = [0.92, 0.98]
-
-    # if(False):
-    if(True):
-        vel_uav_x = vel_uav[(vel_uav["Time"] >= time_x[0]*1e11) & (vel_uav["Time"] <= time_x[1]*1e11)]
-        vel_uav_y = vel_uav[(vel_uav["Time"] >= time_y[0]*1e11) & (vel_uav["Time"] <= time_y[1]*1e11)]
-        vel_uav_z = vel_uav[(vel_uav["Time"] >= time_z[0]*1e11) & (vel_uav["Time"] <= time_z[1]*1e11)]
-        vel_uav_r = vel_uav[(vel_uav["Time"] >= time_r[0]*1e11) & (vel_uav["Time"] <= time_r[1]*1e11)]
-
-        cmd_vel_x = cmd_vel[(cmd_vel["Time"] >= time_x[0]*1e11) & (cmd_vel["Time"] <= time_x[1]*1e11)]
-        cmd_vel_y = cmd_vel[(cmd_vel["Time"] >= time_y[0]*1e11) & (cmd_vel["Time"] <= time_y[1]*1e11)]
-        cmd_vel_z = cmd_vel[(cmd_vel["Time"] >= time_z[0]*1e11) & (cmd_vel["Time"] <= time_z[1]*1e11)]
-        cmd_vel_r = cmd_vel[(cmd_vel["Time"] >= time_r[0]*1e11) & (cmd_vel["Time"] <= time_r[1]*1e11)]
-    else:
-        vel_uav_x = vel_uav
-        vel_uav_y = vel_uav
-        vel_uav_z = vel_uav
-        vel_uav_r = vel_uav
-
-        cmd_vel_x = cmd_vel
-        cmd_vel_y = cmd_vel
-        cmd_vel_z = cmd_vel
-        cmd_vel_r = cmd_vel
-
+def plot_grafico2d(ax,vel_uav_x, vel_uav_y, vel_uav_z, vel_uav_r, cmd_vel_x, cmd_vel_y, cmd_vel_z, cmd_vel_r):
+    
     # ax[0].plot(vel_uav["Time"].to_numpy(), c='b', label=f'vel_uav')
     # ax[0].plot(cmd_vel["Time"].to_numpy(), c='r', label=f'cmd_vel')
 
@@ -80,13 +51,40 @@ def plot_grafico2d(ax, vel_uav, cmd_vel):
 controller = ['Cascade']
 fig, ax = plt.subplots(4, 1, figsize=(15, 9))
 
-vel_uav = ler_csv("log/csv/ft/vel_uav.csv")
-cmd_vel = ler_csv("log/csv/ft/cmd_vel.csv")
+vel_uav_1 = ler_csv("log/csv/ft/vel_uav_1.csv")
+cmd_vel_1 = ler_csv("log/csv/ft/cmd_vel_1.csv")
+vel_uav_1["Time"] -= vel_uav_1["Time"][0]
+cmd_vel_1["Time"] -= cmd_vel_1["Time"][0]
 
-vel_uav["Time"] -= vel_uav["Time"][0]
-cmd_vel["Time"] -= cmd_vel["Time"][0]
+time_x = [0.67, 0.80]
+time_y = [0.00, 0.08]
+time_z = [0.17, 0.23]
+time_r = [0.92, 0.98]
 
-plot_grafico2d(ax, vel_uav, cmd_vel)
+# if(False):
+if(True):
+    vel_uav_x = vel_uav_1[(vel_uav_1["Time"] >= time_x[0]*1e11) & (vel_uav_1["Time"] <= time_x[1]*1e11)]
+    vel_uav_y = vel_uav_1[(vel_uav_1["Time"] >= time_y[0]*1e11) & (vel_uav_1["Time"] <= time_y[1]*1e11)]
+    vel_uav_z = vel_uav_1[(vel_uav_1["Time"] >= time_z[0]*1e11) & (vel_uav_1["Time"] <= time_z[1]*1e11)]
+    vel_uav_r = vel_uav_1[(vel_uav_1["Time"] >= time_r[0]*1e11) & (vel_uav_1["Time"] <= time_r[1]*1e11)]
 
+    cmd_vel_x = cmd_vel_1[(cmd_vel_1["Time"] >= time_x[0]*1e11) & (cmd_vel_1["Time"] <= time_x[1]*1e11)]
+    cmd_vel_y = cmd_vel_1[(cmd_vel_1["Time"] >= time_y[0]*1e11) & (cmd_vel_1["Time"] <= time_y[1]*1e11)]
+    cmd_vel_z = cmd_vel_1[(cmd_vel_1["Time"] >= time_z[0]*1e11) & (cmd_vel_1["Time"] <= time_z[1]*1e11)]
+    cmd_vel_r = cmd_vel_1[(cmd_vel_1["Time"] >= time_r[0]*1e11) & (cmd_vel_1["Time"] <= time_r[1]*1e11)]
+else:
+    vel_uav_x = vel_uav_1
+    vel_uav_y = vel_uav_1
+    vel_uav_z = vel_uav_1
+    vel_uav_r = vel_uav_1
+
+    cmd_vel_x = cmd_vel_1
+    cmd_vel_y = cmd_vel_1
+    cmd_vel_z = cmd_vel_1
+    cmd_vel_r = cmd_vel_1
+
+
+
+plot_grafico2d(ax,vel_uav_x, vel_uav_y, vel_uav_z, vel_uav_r, cmd_vel_x, cmd_vel_y, cmd_vel_z, cmd_vel_r)
 plt.subplots_adjust(left=0.05, bottom=0.1, right=0.97, top=0.95, wspace=0.15, hspace=0.4)
 plt.show()

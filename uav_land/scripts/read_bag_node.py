@@ -83,48 +83,50 @@ class BagReader:
     self.yaw_cmd_vel = []
     self.timestamp_cmd_vel = []
 
-    bag_filename = data[0]
-    print(0, "\t-> ", bag_filename)
+    index = 0
+    for bag_filename in data:
+      index += 1
+      print(index, "\t-> ", bag_filename)
 
-    try:
-      with rosbag.Bag(bag_filename, 'r') as bag:
-        topics = bag.get_type_and_topic_info().topics.keys()
+      try:
+        with rosbag.Bag(bag_filename, 'r') as bag:
+          topics = bag.get_type_and_topic_info().topics.keys()
 
-        for topic, msg, t in bag.read_messages():
-          print(t, end='\r')
-          self.topic_treatment(topic, msg, t)
-          if rospy.is_shutdown():
-            bag.close()
-            return -1
+          for topic, msg, t in bag.read_messages():
+            print(t, end='\r')
+            self.topic_treatment(topic, msg, t)
+            if rospy.is_shutdown():
+              bag.close()
+              return -1
 
-        print("\nfim")
-        bag.close()
-    except rosbag.ROSBagException as e:
-      rospy.logerr("Erro ao reproduzir o arquivo de bag: %s", str(e))
+          print("\nfim")
+          bag.close()
+      except rosbag.ROSBagException as e:
+        rospy.logerr("Erro ao reproduzir o arquivo de bag: %s", str(e))
     
-    filename = "vel_uav.csv"
-    with open(filename, 'w') as csvfile:
-      writer = csv.writer(csvfile)
-      writer.writerow(self.csv_headers)
-      for i in range(len(self.x_vel_uav)):
-        writer.writerow([self.timestamp_vel_uav[i],
-                         self.x_vel_uav[i],
-                         self.y_vel_uav[i],
-                         self.z_vel_uav[i],
-                         self.yaw_vel_uav[i]])
-    print(filename)
-
-    filename = "cmd_vel.csv"
-    with open(filename, 'w') as csvfile:
-      writer = csv.writer(csvfile)
-      writer.writerow(self.csv_headers)
-      for i in range(len(self.x_cmd_vel)):
-        writer.writerow([self.timestamp_cmd_vel[i],
-                         self.x_cmd_vel[i],
-                         self.y_cmd_vel[i],
-                         self.z_cmd_vel[i],
-                         self.yaw_cmd_vel[i]])
-    print(filename)
+      filename = "vel_uav_" + str(index) + ".csv"
+      with open(filename, 'w') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(self.csv_headers)
+        for i in range(len(self.x_vel_uav)):
+          writer.writerow([self.timestamp_vel_uav[i],
+                          self.x_vel_uav[i],
+                          self.y_vel_uav[i],
+                          self.z_vel_uav[i],
+                          self.yaw_vel_uav[i]])
+      print(filename)
+    
+      filename = "cmd_vel_" + str(index) + ".csv"
+      with open(filename, 'w') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(self.csv_headers)
+        for i in range(len(self.x_cmd_vel)):
+          writer.writerow([self.timestamp_cmd_vel[i],
+                          self.x_cmd_vel[i],
+                          self.y_cmd_vel[i],
+                          self.z_cmd_vel[i],
+                          self.yaw_cmd_vel[i]])
+      print(filename)
 
   def show_bags(self):
     self.x_uav = []
