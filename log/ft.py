@@ -72,6 +72,9 @@ if(True):
     cmd_vel_y = cmd_vel_1[(cmd_vel_1["Time"] >= time_y[0]*1e11) & (cmd_vel_1["Time"] <= time_y[1]*1e11)]
     cmd_vel_z = cmd_vel_1[(cmd_vel_1["Time"] >= time_z[0]*1e11) & (cmd_vel_1["Time"] <= time_z[1]*1e11)]
     cmd_vel_r = cmd_vel_1[(cmd_vel_1["Time"] >= time_r[0]*1e11) & (cmd_vel_1["Time"] <= time_r[1]*1e11)]
+
+    vel_uav_z["Z Position"] *= 2
+    vel_uav_r["yaw"] *= 2
 else:
     vel_uav_x = vel_uav_1
     vel_uav_y = vel_uav_1
