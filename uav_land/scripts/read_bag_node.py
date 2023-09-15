@@ -12,7 +12,8 @@ from uav_land.msg import controllers_gain
 
 class BagReader:
   def __init__(self):
-    self.csv_headers = ['Time', 'X Position', 'Y Position', 'Z Position', 'yaw']
+    self.csv_headers = ['Time', 'X_vel_uav', 'Y_vel_uav', 'Z_vel_uav', 'yaw_vel_uav'
+                        , 'X_cmd_vel', 'Y_cmd_vel', 'Z_cmd_vel', 'yaw_cmd_vel']
     self.x_uav = []
     self.y_uav = []
     self.z_uav = []
@@ -23,11 +24,16 @@ class BagReader:
     self.z_vel_uav = []
     self.yaw_vel_uav = []
     self.timestamp_vel_uav = []
-    self.x_cmd_vel = []
-    self.y_cmd_vel = []
-    self.z_cmd_vel = []
-    self.yaw_cmd_vel = []
-    self.timestamp_cmd_vel = []
+
+    self.x_cmd_vel = 0
+    self.y_cmd_vel = 0
+    self.z_cmd_vel = 0
+    self.yaw_cmd_vel = 0
+
+    self.x_cmd = []
+    self.y_cmd = []
+    self.z_cmd = []
+    self.yaw_cmd = []
 
     controllers = ["Cascade", "Parallel"]
     self.bags = []
@@ -77,15 +83,21 @@ class BagReader:
     self.z_vel_uav = []
     self.yaw_vel_uav = []
     self.timestamp_vel_uav = []
-    self.x_cmd_vel = []
-    self.y_cmd_vel = []
-    self.z_cmd_vel = []
-    self.yaw_cmd_vel = []
-    self.timestamp_cmd_vel = []
+
+    self.x_cmd = []
+    self.y_cmd = []
+    self.z_cmd = []
+    self.yaw_cmd = []
+    
+    self.x_cmd_vel = 0
+    self.y_cmd_vel = 0
+    self.z_cmd_vel = 0
+    self.yaw_cmd_vel = 0
 
     index = 0
     for bag_filename in data:
       index += 1
+      bag_filename = folder + "/" + str(index) + ".bag"
       print(index, "\t-> ", bag_filename)
 
       try:
@@ -104,7 +116,7 @@ class BagReader:
       except rosbag.ROSBagException as e:
         rospy.logerr("Erro ao reproduzir o arquivo de bag: %s", str(e))
     
-      filename = "vel_uav_" + str(index) + ".csv"
+      filename = "uav_" + str(index) + ".csv"
       with open(filename, 'w') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(self.csv_headers)
@@ -113,19 +125,12 @@ class BagReader:
                           self.x_vel_uav[i],
                           self.y_vel_uav[i],
                           self.z_vel_uav[i],
-                          self.yaw_vel_uav[i]])
-      print(filename)
-    
-      filename = "cmd_vel_" + str(index) + ".csv"
-      with open(filename, 'w') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(self.csv_headers)
-        for i in range(len(self.x_cmd_vel)):
-          writer.writerow([self.timestamp_cmd_vel[i],
-                          self.x_cmd_vel[i],
-                          self.y_cmd_vel[i],
-                          self.z_cmd_vel[i],
-                          self.yaw_cmd_vel[i]])
+                          self.yaw_vel_uav[i], 
+                          self.x_cmd[i],
+                          self.y_cmd[i],
+                          self.z_cmd[i],
+                          self.yaw_cmd[i], 
+                          ])
       print(filename)
 
   def show_bags(self):
@@ -158,13 +163,17 @@ class BagReader:
       self.yaw_vel_uav.append(msg.twist.twist.angular.z)
       self.timestamp_vel_uav.append(t)
 
+      self.x_cmd.append(self.x_cmd_vel)
+      self.y_cmd.append(self.y_cmd_vel)
+      self.z_cmd.append(self.z_cmd_vel)
+      self.yaw_cmd.append(self.yaw_cmd_vel)
+
     elif(topic == "/tello/cmd_vel"):
       # rospy.loginfo("Reproduzindo mensagem em %s", topic)
-      self.x_cmd_vel.append(msg.linear.x)
-      self.y_cmd_vel.append(msg.linear.y)
-      self.z_cmd_vel.append(msg.linear.z)
-      self.yaw_cmd_vel.append(msg.angular.z)
-      self.timestamp_cmd_vel.append(t)
+      self.x_cmd_vel = msg.linear.x
+      self.y_cmd_vel = msg.linear.y
+      self.z_cmd_vel = msg.linear.z
+      self.yaw_cmd_vel = msg.angular.z
 
   def save_csv_uav_pose(self):
     filename = self.bags[self.index]
