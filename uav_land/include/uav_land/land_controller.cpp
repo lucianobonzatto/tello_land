@@ -16,7 +16,85 @@ Land_Controller::~Land_Controller()
 void Land_Controller::print_parameters()
 {
     cout << "Land_Controller: " << endl;
-    // cout << "\ttrack: " << track.header.stamp << endl;
+    cout << "\tx: " << setpoint.x << "\ty: " << setpoint.y
+         << "\tz: " << setpoint.z << "\ttheta: " << setpoint.theta << endl;
+
+    if (controller_mode == CONTROLERS::_PD)
+    {
+        cout << "\tPD" << endl;
+        double Kp, Kd;
+        pdController.get_x(Kp, Kd);
+        cout << "\tKp_x: " << Kp << "\tKd_x: " << Kd << endl;
+        pdController.get_y(Kp, Kd);
+        cout << "\tKp_y: " << Kp << "\tKd_y: " << Kd << endl;
+        pdController.get_z(Kp, Kd);
+        cout << "\tKp_z: " << Kp << "\tKd_z: " << Kd << endl;
+        pdController.get_theta(Kp, Kd);
+        cout << "\tKp_theta: " << Kp << "\tKd_theta: " << Kd << endl;
+    }
+    else if (controller_mode == CONTROLERS::_PID)
+    {
+        cout << "\tPID" << endl;
+        double kp, ki, kd;
+        kp = ki = kd = 0;
+        pidController.get_x(kp, ki, kd);
+        cout << "\tx_kp: " << kp << "\tx_ki: " << ki << "\tx_kd: " << kd << endl;
+
+        pidController.get_y(kp, ki, kd);
+        cout << "\ty_kp: " << kp << "\ty_ki: " << ki << "\ty_kd: " << kd << endl;
+
+        pidController.get_z(kp, ki, kd);
+        cout << "\tz_kp: " << kp << "\tz_ki: " << ki << "\tz_kd: " << kd << endl;
+
+        pidController.get_theta(kp, ki, kd);
+        cout << "\tt_kp: " << kp << "\tt_ki: " << ki << "\tt_kd: " << kd << endl;
+    }
+    else if (controller_mode == CONTROLERS::_CASCADE)
+    {
+        cout << "\tCascade" << endl;
+        double kp_pd, kd_pd, kp_pi, ki_pi;
+        kp_pd = kd_pd = kp_pi = ki_pi = 0;
+        cascadeController.get_x(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\tx_p_pd: " << kp_pd << "\tx_d_pd: " << kd_pd
+             << "\tx_p_pi: " << kp_pi << "\tx_i_pi: " << ki_pi << endl;
+
+        cascadeController.get_y(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\ty_p_pd: " << kp_pd << "\ty_d_pd: " << kd_pd
+             << "\ty_p_pi: " << kp_pi << "\ty_i_pi: " << ki_pi << endl;
+
+        cascadeController.get_z(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\tz_p_pd: " << kp_pd << "\tz_d_pd: " << kd_pd
+             << "\tz_p_pi: " << kp_pi << "\tz_i_pi: " << ki_pi << endl;
+
+        cascadeController.get_theta(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\tt_p_pd: " << kp_pd << "\tt_d_pd: " << kd_pd
+             << "\tt_p_pi: " << kp_pi << "\tt_i_pi: " << ki_pi << endl;
+    }
+    else if (controller_mode == CONTROLERS::_PARALLEL)
+    {
+        cout << "\tParallel" << endl;
+        double kp_pd, kd_pd, kp_pi, ki_pi;
+        kp_pd = kd_pd = kp_pi = ki_pi = 0;
+        parallelController.get_x(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\tx_p_pd: " << kp_pd << "\tx_d_pd: " << kd_pd
+             << "\tx_p_pi: " << kp_pi << "\tx_i_pi: " << ki_pi << endl;
+
+        parallelController.get_y(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\ty_p_pd: " << kp_pd << "\ty_d_pd: " << kd_pd
+             << "\ty_p_pi: " << kp_pi << "\ty_i_pi: " << ki_pi << endl;
+
+        parallelController.get_z(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\tz_p_pd: " << kp_pd << "\tz_d_pd: " << kd_pd
+             << "\tz_p_pi: " << kp_pi << "\tz_i_pi: " << ki_pi << endl;
+
+        parallelController.get_theta(kp_pd, kd_pd, kp_pi, ki_pi);
+        cout << "\tt_p_pd: " << kp_pd << "\tt_d_pd: " << kd_pd
+             << "\tt_p_pi: " << kp_pi << "\tt_i_pi: " << ki_pi << endl;
+    }
+    else
+    {
+        cout << "\t*****" << endl;
+    }
 }
 
 void Land_Controller::update_parameters(uav_land::controllers_gain newParameters)

@@ -151,7 +151,7 @@ void Manager::LAND_CONTROL_action()
   drone_vel.vz = 0;
   drone_vel.vtheta = 0;
 
-  velocity = follow_controller.get_velocity(pose, drone_vel);
+  velocity = land_controller.get_velocity(pose, drone_vel);
   send_velocity(velocity.linear.x,
                 velocity.linear.y,
                 velocity.linear.z,

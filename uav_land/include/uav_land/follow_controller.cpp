@@ -170,7 +170,6 @@ void Follow_Controller::update_parameters(uav_land::controllers_gain newParamete
                                     newParameters.paralel_ctrl.yaw.pi_ctrl.i_gain);
 
     controller_mode = newParameters.mode;
-    setpoint.z = newParameters.altitude;
 }
 
 geometry_msgs::Twist Follow_Controller::get_velocity(geometry_msgs::PoseStamped poseStamped, Speed drone_vel)
