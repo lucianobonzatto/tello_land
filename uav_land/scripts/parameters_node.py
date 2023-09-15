@@ -94,7 +94,7 @@ class ControllerGUI:
             os.mkdir(bag_filename)
 
         bag_filename = bag_filename + "/" + self.entry_text.get()
-        rosbag_command = f"rosbag record -o {bag_filename} -a __name:=rosbag_node"
+        rosbag_command = f"rosbag record -o {bag_filename} /joy_control /PID/parameters /aruco/pose /tello/cmd_vel /tello/odom /tello/image_raw/h264 /tello/land /tello/takeoff __name:=rosbag_node"
 
         subprocess.Popen(rosbag_command, shell=True)
 
