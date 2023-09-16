@@ -78,27 +78,27 @@ class BagReader:
     folder = os.path.join("/home/lukn23/bag/tello/ft")
     data = glob.glob(folder + "/*")
 
-    self.x_vel_uav = []
-    self.y_vel_uav = []
-    self.z_vel_uav = []
-    self.yaw_vel_uav = []
-    self.timestamp_vel_uav = []
-
-    self.x_cmd = []
-    self.y_cmd = []
-    self.z_cmd = []
-    self.yaw_cmd = []
-    
-    self.x_cmd_vel = 0
-    self.y_cmd_vel = 0
-    self.z_cmd_vel = 0
-    self.yaw_cmd_vel = 0
-
     index = 0
     for bag_filename in data:
       index += 1
       bag_filename = folder + "/" + str(index) + ".bag"
       print(index, "\t-> ", bag_filename)
+
+      self.x_vel_uav = []
+      self.y_vel_uav = []
+      self.z_vel_uav = []
+      self.yaw_vel_uav = []
+      self.timestamp_vel_uav = []
+
+      self.x_cmd = []
+      self.y_cmd = []
+      self.z_cmd = []
+      self.yaw_cmd = []
+      
+      self.x_cmd_vel = 0
+      self.y_cmd_vel = 0
+      self.z_cmd_vel = 0
+      self.yaw_cmd_vel = 0
 
       try:
         with rosbag.Bag(bag_filename, 'r') as bag:
@@ -161,7 +161,7 @@ class BagReader:
       self.y_vel_uav.append(msg.twist.twist.linear.y)
       self.z_vel_uav.append(msg.twist.twist.linear.z)
       self.yaw_vel_uav.append(msg.twist.twist.angular.z)
-      self.timestamp_vel_uav.append(t)
+      self.timestamp_vel_uav.append(msg.header.stamp.to_sec())
 
       self.x_cmd.append(self.x_cmd_vel)
       self.y_cmd.append(self.y_cmd_vel)
