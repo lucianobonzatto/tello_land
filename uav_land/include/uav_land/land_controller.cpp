@@ -7,6 +7,8 @@ Land_Controller::Land_Controller()
     setpoint.z = 1;
     setpoint.theta = 0;
     controller_mode = 0;
+    distance_threshold = 0.1;
+    angular_threshold = 0.1;
 }
 
 Land_Controller::~Land_Controller()
@@ -157,6 +159,13 @@ geometry_msgs::Twist Land_Controller::get_velocity(geometry_msgs::PoseStamped po
     measurement.z = -poseStamped.pose.position.z;
     measurement.theta = poseStamped.pose.orientation.x;
 
+    double distance = calculate_distance(measurement, setpoint);
+    double angle_distance = measurement.theta - setpoint.theta;
+    if ((distance <= distance_threshold) && (angle_distance <= angular_threshold))
+    {
+        return velocity;
+    }
+
     Speed vel = get_align_velocity(measurement, drone_vel);
 
     velocity.linear.x = vel.vx;
@@ -252,4 +261,15 @@ double Land_Controller::calc_vel(double valor_in)
         return_value = -return_value;
 
     return return_value;
+}
+
+double Land_Controller::calculate_distance(const Pose& point1, const Pose& point2)
+{
+    // Aqui você deve implementar o cálculo da distância entre dois pontos (por exemplo, usando a fórmula da distância euclidiana)
+    // A fórmula é sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
+    // Lembre-se de que esta implementação depende da definição de sua classe Pose.
+    // A função deve retornar a distância entre os dois pontos.
+
+    // Exemplo fictício (substitua pela implementação real):
+    return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2) + pow(point2.z - point1.z, 2));
 }
