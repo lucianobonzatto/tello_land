@@ -141,7 +141,6 @@ void Land_Controller::update_parameters(uav_land::controllers_gain newParameters
                                     newParameters.paralel_ctrl.yaw.pi_ctrl.i_gain);
 
     controller_mode = newParameters.mode;
-    setpoint.z = newParameters.altitude;
 }
 
 geometry_msgs::Twist Land_Controller::get_velocity(geometry_msgs::PoseStamped poseStamped, Speed drone_vel)
@@ -161,10 +160,20 @@ geometry_msgs::Twist Land_Controller::get_velocity(geometry_msgs::PoseStamped po
 
     double distance = calculate_distance(measurement, setpoint);
     double angle_distance = measurement.theta - setpoint.theta;
+    if(angle_distance < 0)
+        angle_distance *= -1;
+        
+
+    cout << "**********************" << endl;
+    cout << "distance:\t" << distance << "\t" << distance_threshold << endl;
+    cout << "angle_distance:\t" << angle_distance << "\t" << angular_threshold << endl;
+
     if ((distance <= distance_threshold) && (angle_distance <= angular_threshold))
     {
-        return velocity;
+        cout << "******* chegou *******" << endl;
+        cout << setpoint.z << ": " << update_altitude(setpoint.z) << endl;
     }
+    cout << "**********************" << endl;
 
     Speed vel = get_align_velocity(measurement, drone_vel);
 
@@ -265,11 +274,12 @@ double Land_Controller::calc_vel(double valor_in)
 
 double Land_Controller::calculate_distance(const Pose& point1, const Pose& point2)
 {
-    // Aqui você deve implementar o cálculo da distância entre dois pontos (por exemplo, usando a fórmula da distância euclidiana)
-    // A fórmula é sqrt((x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2)
-    // Lembre-se de que esta implementação depende da definição de sua classe Pose.
-    // A função deve retornar a distância entre os dois pontos.
-
-    // Exemplo fictício (substitua pela implementação real):
     return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2) + pow(point2.z - point1.z, 2));
+}
+
+double Land_Controller::update_altitude(double altitude)
+{
+    double return_value;
+    return_value = altitude - 0.01;
+    return return_value;
 }

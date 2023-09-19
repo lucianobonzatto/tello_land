@@ -27,6 +27,7 @@ private:
     Speed get_align_velocity(Pose poseMeasurement, Speed drone_vel);
     double calc_vel(double valor_in);
     double calculate_distance(const Pose& point1, const Pose& point2);
+    double update_altitude(double altitude);
 };
 
 #endif // LAND_CONTROLLER_H
