@@ -143,6 +143,18 @@ void Land_Controller::update_parameters(uav_land::controllers_gain newParameters
     controller_mode = newParameters.mode;
 }
 
+void Land_Controller::reset_altitude(double altitude)
+{
+    setpoint.z = altitude;
+}
+
+bool Land_Controller::completed_approach()
+{
+    if(setpoint.z < 0.2)
+        return true;
+    return false;
+}
+
 geometry_msgs::Twist Land_Controller::get_velocity(geometry_msgs::PoseStamped poseStamped, Speed drone_vel)
 {
     geometry_msgs::Twist velocity;
@@ -160,9 +172,8 @@ geometry_msgs::Twist Land_Controller::get_velocity(geometry_msgs::PoseStamped po
 
     double distance = calculate_distance(measurement, setpoint);
     double angle_distance = measurement.theta - setpoint.theta;
-    if(angle_distance < 0)
+    if (angle_distance < 0)
         angle_distance *= -1;
-        
 
     cout << "**********************" << endl;
     cout << "distance:\t" << distance << "\t" << distance_threshold << endl;
@@ -272,7 +283,7 @@ double Land_Controller::calc_vel(double valor_in)
     return return_value;
 }
 
-double Land_Controller::calculate_distance(const Pose& point1, const Pose& point2)
+double Land_Controller::calculate_distance(const Pose &point1, const Pose &point2)
 {
     return sqrt(pow(point2.x - point1.x, 2) + pow(point2.y - point1.y, 2) + pow(point2.z - point1.z, 2));
 }

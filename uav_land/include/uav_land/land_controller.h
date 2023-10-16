@@ -13,6 +13,8 @@ public:
     void print_parameters();
     geometry_msgs::Twist get_velocity(geometry_msgs::PoseStamped poseStamped, Speed drone_vel);
     void update_parameters(uav_land::controllers_gain newParameters);
+    void reset_altitude(double altitude);
+    bool completed_approach();
 
 private:
     TelloPDController pdController;

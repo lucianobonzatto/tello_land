@@ -68,6 +68,7 @@ void Manager::update()
   if (state_machine.update_state(joy))
   {
     send_velocity(0, 0, 0, 0);
+    land_controller.reset_altitude(1);
   }
 }
 
@@ -156,6 +157,11 @@ void Manager::LAND_CONTROL_action()
                 velocity.linear.y,
                 velocity.linear.z,
                 velocity.angular.z);
+
+  if (land_controller.completed_approach())
+  {
+    
+  }
 }
 
 void Manager::FOLLOW_CONTROL_action()
