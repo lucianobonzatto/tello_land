@@ -160,7 +160,7 @@ void Manager::LAND_CONTROL_action()
 
   if (land_controller.completed_approach())
   {
-    
+    state_machine.land();
   }
 }
 
