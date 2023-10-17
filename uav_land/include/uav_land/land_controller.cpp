@@ -9,6 +9,38 @@ Land_Controller::Land_Controller()
     controller_mode = 0;
     distance_threshold = 0.1;
     angular_threshold = 0.1;
+
+    PID::Builder builder;
+    builder.setDt(0.05);
+    builder.setConditionalIntegration(true)
+
+ ;   TelloPDController pd_controller(
+        builder,
+        builder,
+        builder,
+        builder);
+    pdController = pd_controller;
+
+    TelloCascadePDPIController cascade_controller(
+        builder, builder,
+        builder, builder,
+        builder, builder,
+        builder, builder);
+    cascadeController = cascade_controller;
+
+    TelloParallelPDPIController parallel_controller(
+        builder, builder,
+        builder, builder,
+        builder, builder,
+        builder, builder);
+    parallelController = parallel_controller;
+
+    TelloPIDController pid_Controller(
+        builder,
+        builder,
+        builder,
+        builder);
+    pidController = pidController;
 }
 
 Land_Controller::~Land_Controller()
@@ -175,16 +207,15 @@ geometry_msgs::Twist Land_Controller::get_velocity(geometry_msgs::PoseStamped po
     if (angle_distance < 0)
         angle_distance *= -1;
 
-    cout << "**********************" << endl;
     cout << "distance:\t" << distance << "\t" << distance_threshold << endl;
     cout << "angle_distance:\t" << angle_distance << "\t" << angular_threshold << endl;
 
     if ((distance <= distance_threshold) && (angle_distance <= angular_threshold))
     {
         cout << "******* chegou *******" << endl;
+        setpoint.z = update_altitude(setpoint.z);
         cout << setpoint.z << ": " << update_altitude(setpoint.z) << endl;
     }
-    cout << "**********************" << endl;
 
     Speed vel = get_align_velocity(measurement, drone_vel);
 

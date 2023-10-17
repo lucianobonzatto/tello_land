@@ -32,8 +32,8 @@ Cascade_piP_z: 0.9
 Cascade_piI_z: 0.3
 Cascade_pdP_yaw: 2
 Cascade_pdD_yaw: 0.2
-Cascade_piP_yaw: 3
-Cascade_piI_yaw: 0.7
+Cascade_piP_yaw: 1
+Cascade_piI_yaw: 0
 Parallel_pdP_x: 1.1
 Parallel_pdD_x: 1.2
 Parallel_piP_x: 0.5
@@ -50,4 +50,4 @@ Parallel_pdP_yaw: 1
 Parallel_pdD_yaw: 0.9
 Parallel_piP_yaw: 0.6
 Parallel_piI_yaw: 1
-controller_mode: Parallel
+controller_mode: Cascade

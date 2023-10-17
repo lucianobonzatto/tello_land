@@ -145,12 +145,13 @@ void Manager::JOY_CONTROL_action()
 
 void Manager::LAND_CONTROL_action()
 {
+  cout << "**********************" << endl;
   geometry_msgs::Twist velocity;
   Speed drone_vel;
-  drone_vel.vx = 0;
-  drone_vel.vy = 0;
-  drone_vel.vz = 0;
-  drone_vel.vtheta = 0;
+  drone_vel.vx = odom.twist.twist.linear.x;
+  drone_vel.vy = odom.twist.twist.linear.y;
+  drone_vel.vz = odom.twist.twist.linear.z;
+  drone_vel.vtheta = odom.twist.twist.angular.z;
 
   velocity = land_controller.get_velocity(pose, drone_vel);
   send_velocity(velocity.linear.x,
@@ -158,20 +159,24 @@ void Manager::LAND_CONTROL_action()
                 velocity.linear.z,
                 velocity.angular.z);
 
+  cout << "completed_approach: " << land_controller.completed_approach() << endl;
   if (land_controller.completed_approach())
   {
+    std_msgs::Empty emptyMsg;
+    ROS_client->land_pub.publish(emptyMsg);
     state_machine.land();
   }
+  cout << "**********************" << endl;
 }
 
 void Manager::FOLLOW_CONTROL_action()
 {
   geometry_msgs::Twist velocity;
   Speed drone_vel;
-  drone_vel.vx = 0;
-  drone_vel.vy = 0;
-  drone_vel.vz = 0;
-  drone_vel.vtheta = 0;
+  drone_vel.vx = odom.twist.twist.linear.x;
+  drone_vel.vy = odom.twist.twist.linear.y;
+  drone_vel.vz = odom.twist.twist.linear.z;
+  drone_vel.vtheta = odom.twist.twist.angular.z;
 
   velocity = follow_controller.get_velocity(pose, drone_vel);
   send_velocity(velocity.linear.x,
@@ -230,9 +235,7 @@ void Manager::odomCallback(const nav_msgs::Odometry::ConstPtr &msg)
   mat.getRPY(roll, pitch, yaw);
 
   odom.twist.twist.linear.x = msg->twist.twist.linear.y * cos(yaw) + msg->twist.twist.linear.x * sin(yaw);
-
   odom.twist.twist.linear.y = msg->twist.twist.linear.y * sin(yaw) + msg->twist.twist.linear.x * -cos(yaw);
-
   odom.twist.twist.linear.z = msg->twist.twist.linear.z;
   odom.twist.twist.angular.z = -msg->twist.twist.angular.z;
 }
