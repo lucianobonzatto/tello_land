@@ -12,9 +12,10 @@ Land_Controller::Land_Controller()
 
     PID::Builder builder;
     builder.setDt(0.05);
-    builder.setConditionalIntegration(true)
+    builder.setOutMax(1);
+    builder.setConditionalIntegration(true);
 
- ;   TelloPDController pd_controller(
+    TelloPDController pd_controller(
         builder,
         builder,
         builder,
