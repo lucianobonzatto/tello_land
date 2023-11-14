@@ -50,6 +50,16 @@ class ControllerGUI:
         self.stop_bag_button = Button(self.root, text="stop_bag", command=self.stop_bag)
         self.stop_bag_button.grid(row=14, column=20)
 
+        Label(self.root, text="linear_vel").grid(row=3, column=20)
+        self.linear_vel = Entry(self.root, width=5)
+        self.linear_vel.insert(0, "1.0")
+        self.linear_vel.grid(row=4, column= 20, padx=5, pady=5)
+
+        Label(self.root, text="angular_vel").grid(row=5, column=20)
+        self.angular_vel = Entry(self.root, width=5)
+        self.angular_vel.insert(0, "1.0")
+        self.angular_vel.grid(row=6, column= 20, padx=5, pady=5)
+
         self.entry_text = Entry(self.root, width=15)
         self.entry_text.grid(row=15, column= 20, padx=5, pady=5)
 
@@ -182,6 +192,9 @@ class ControllerGUI:
         self.gains.paralel_ctrl.yaw.pi_ctrl.p_gain = float(self.get_entry("Parallel", "piP", "yaw").get())
         self.gains.paralel_ctrl.yaw.pi_ctrl.i_gain = float(self.get_entry("Parallel", "piI", "yaw").get())
         self.gains.altitude = self.scale.get()
+
+        self.gains.linear_vel = float(self.linear_vel.get())
+        self.gains.angular_vel = float(self.angular_vel.get())
 
         self.gains.mode = 0
         if self.controller_mode.get() == "PD":

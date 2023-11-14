@@ -8,12 +8,10 @@ Manager::~Manager()
 {
 }
 
-void Manager::Init(ROSClient *drone_control,
-                   double joyLinearVelocity,
-                   double joyAngularVelocity)
+void Manager::Init(ROSClient *drone_control)
 {
-  joy_linear_velocity = joyLinearVelocity;
-  joy_angular_velocity = joyAngularVelocity;
+  parameters.linear_vel = 0.1;
+  parameters.angular_vel = 0.1;
 
   ROS_client = drone_control;
   ROS_client->init(this);
@@ -27,6 +25,9 @@ void Manager::print_parameters()
        << "\ty: " << pose.pose.position.y
        << "\tz: " << pose.pose.position.z
        << "\ttheta: " << pose.pose.orientation.x << endl;
+
+  cout << "\tlinear_vel: " << parameters.linear_vel
+       << "\tangular_vel: " << parameters.angular_vel << endl;
 
   cout << "\tjoy: " << joy.header.stamp << endl;
   cout << "\todom: " << odom.header.stamp << endl;
@@ -65,6 +66,8 @@ void Manager::update()
 
   follow_controller.update_parameters(parameters);
   land_controller.update_parameters(parameters);
+  joy_linear_velocity = parameters.linear_vel;
+  joy_angular_velocity = parameters.angular_vel;
   if (state_machine.update_state(joy))
   {
     send_velocity(0, 0, 0, 0);
@@ -94,11 +97,11 @@ void Manager::JOY_CONTROL_action()
   {
     return;
   }
-  if (joy_last_timestamp == joy.header.stamp)
-  {
-    send_velocity(0, 0, 0, 0);
-    return;
-  }
+  // if (joy_last_timestamp == joy.header.stamp)
+  // {
+  //   send_velocity(0, 0, 0, 0);
+  //   return;
+  // }
   joy_last_timestamp = joy.header.stamp;
 
   if (joy.axes[JOY_AXES::VERTICAL_ARROW] != 0)

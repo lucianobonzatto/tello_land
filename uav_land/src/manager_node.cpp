@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
   ros::Rate loop_rate(20);
 
   ROSClient ros_client(nh);
-  principal.Init(&ros_client, 1, 1);
+  principal.Init(&ros_client);
 
   while(ros::ok()){
     ros::spinOnce();
