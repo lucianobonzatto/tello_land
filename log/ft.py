@@ -28,19 +28,42 @@ def plot_uav(ax, uav_x, uav_y, uav_z, uav_r):
     ax[2].set_ylabel('Z')
     ax[3].set_ylabel('Yaw')
 
-uav_1 = ler_csv("log/csv/Gains/1.csv")
+# uav_1 = ler_csv("log/csv/Gains/1.csv")
+uav_brz = ler_csv("log/csv/Gains/teste_2023-11-17-19-07-26.csv")
+uav_by = ler_csv("log/csv/Gains/y.csv")
+uav_bx = ler_csv("log/csv/Gains/x.csv")
 
-time_x = [0, 1000]
+time_x = [45, 1000]
 time_y = [0, 1000]
-time_z = [0, 1000]
-time_r = [0, 1000]
+time_z = [90, 130]
+time_r = [180, 1000]
 
-sel = uav_1
+uav_x = uav_bx[(uav_bx["Time"] >= time_x[0]) & (uav_bx["Time"] <= time_x[1])]
+uav_y = uav_by[(uav_by["Time"] >= time_y[0]) & (uav_by["Time"] <= time_y[1])]
+uav_z = uav_brz[(uav_brz["Time"] >= time_z[0]) & (uav_brz["Time"] <= time_z[1])]
+uav_r = uav_brz[(uav_brz["Time"] >= time_r[0]) & (uav_brz["Time"] <= time_r[1])]
 
-uav_x = sel[(sel["Time"] >= time_x[0]) & (sel["Time"] <= time_x[1])]
-uav_y = sel[(sel["Time"] >= time_y[0]) & (sel["Time"] <= time_y[1])]
-uav_z = sel[(sel["Time"] >= time_z[0]) & (sel["Time"] <= time_z[1])]
-uav_r = sel[(sel["Time"] >= time_r[0]) & (sel["Time"] <= time_r[1])]
+uav_y["Y_vel_uav"] = uav_y["X_vel_uav"]
+uav_y["Y_cmd_vel"] = uav_y["X_cmd_vel"]
+
+uav_x["X_vel_uav"] = uav_x["Y_vel_uav"]
+uav_x["X_cmd_vel"] = uav_x["Y_cmd_vel"]
+
+uav_x = uav_x.drop_duplicates(subset=uav_x.columns.difference(['Time', 'R_vel_uav']))
+uav_y = uav_y.drop_duplicates(subset=uav_y.columns.difference(['Time', 'R_vel_uav']))
+uav_z = uav_z.drop_duplicates(subset=uav_z.columns.difference(['Time', 'R_vel_uav']))
+uav_r = uav_r.drop_duplicates(subset=uav_r.columns.difference(['Time']))
+
+
+uav_x.to_csv('log/csv/output/uav_x.csv', index=False)
+uav_y.to_csv('log/csv/output/uav_y.csv', index=False)
+uav_z.to_csv('log/csv/output/uav_z.csv', index=False)
+uav_r.to_csv('log/csv/output/uav_r.csv', index=False)
+
+print(uav_x["Time"].diff().dropna().mean())
+print(uav_y["Time"].diff().dropna().mean())
+print(uav_z["Time"].diff().dropna().mean())
+print(uav_r["Time"].diff().dropna().mean())
 
 fig, ax = plt.subplots(4, 1, figsize=(15, 9))
 plot_uav(ax, uav_x, uav_y, uav_z, uav_r)
