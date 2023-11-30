@@ -14,7 +14,7 @@ from uav_land.msg import controllers_gain
 class BagReader:
     def __init__(self):
         # controllers = ["Cascade", "Parallel", "Gains"]
-        controllers = ["Gains"]
+        controllers = ["Gains", "Gains/aruco", "PD"]
 
         self.csv_headers = [
             "Time",
@@ -102,6 +102,19 @@ class BagReader:
             self.out_value["Y_cmd_vel"].append(self.y_cmd_vel)
             self.out_value["Z_cmd_vel"].append(self.z_cmd_vel)
             self.out_value["R_cmd_vel"].append(self.R_cmd_vel)
+
+        # elif topic == "/aruco/pose":
+        #     # rospy.loginfo("Reproduzindo mensagem em %s", topic)
+        #     self.out_value["Time"].append(msg.header.stamp.to_sec())
+        #     self.out_value["X_vel_uav"].append(msg.pose.position.x)
+        #     self.out_value["Y_vel_uav"].append(msg.pose.position.y)
+        #     self.out_value["Z_vel_uav"].append(msg.pose.position.z)
+        #     self.out_value["R_vel_uav"].append(0)
+        
+        #     self.out_value["X_cmd_vel"].append(self.x_cmd_vel)
+        #     self.out_value["Y_cmd_vel"].append(self.y_cmd_vel)
+        #     self.out_value["Z_cmd_vel"].append(self.z_cmd_vel)
+        #     self.out_value["R_cmd_vel"].append(self.R_cmd_vel)
 
         elif topic == "/tello/cmd_vel":
             # rospy.loginfo("Reproduzindo mensagem em %s", topic)
