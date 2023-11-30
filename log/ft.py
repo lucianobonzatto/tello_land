@@ -29,9 +29,9 @@ def plot_uav(ax, uav_x, uav_y, uav_z, uav_r):
     ax[3].set_ylabel('Yaw')
 
 # uav_1 = ler_csv("log/csv/Gains/1.csv")
-uav_brz = ler_csv("log/csv/Gains/rz.csv")
-uav_by = ler_csv("log/csv/Gains/y.csv")
-uav_bx = ler_csv("log/csv/Gains/x.csv")
+uav_brz = ler_csv("log/csv/ft/v05_rz.csv")
+uav_by = ler_csv("log/csv/ft/v05_y.csv")
+uav_bx = ler_csv("log/csv/ft/v05_x.csv")
 
 time_x = [45, 1000]
 time_y = [0, 1000]

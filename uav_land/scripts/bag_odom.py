@@ -13,8 +13,8 @@ from uav_land.msg import controllers_gain
 
 class BagReader:
     def __init__(self):
-        controllers = ["Cascade", "Parallel", "PD"]
-        # controllers = ["Gains", "Gains/aruco", "PD"]
+        # controllers = ["Cascade", "Parallel", "PD"]
+        controllers = ["Gains"]
 
         self.csv_headers = [
             "Time",
