@@ -10,6 +10,7 @@ public:
 
     STATES get_state();
     bool update_state(sensor_msgs::Joy newJoy);
+    void land();
 
 private:
     STATES state;

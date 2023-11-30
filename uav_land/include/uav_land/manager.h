@@ -13,9 +13,7 @@ public:
     Manager();
     ~Manager();
 
-    void Init(ROSClient *drone_control,
-              double joyLinearVelocity,
-              double joyAngularVelocity);
+    void Init(ROSClient *drone_control);
 
     void print_parameters();
     void update();

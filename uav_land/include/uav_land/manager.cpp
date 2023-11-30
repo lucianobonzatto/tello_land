@@ -8,12 +8,10 @@ Manager::~Manager()
 {
 }
 
-void Manager::Init(ROSClient *drone_control,
-                   double joyLinearVelocity,
-                   double joyAngularVelocity)
+void Manager::Init(ROSClient *drone_control)
 {
-  joy_linear_velocity = joyLinearVelocity;
-  joy_angular_velocity = joyAngularVelocity;
+  parameters.linear_vel = 0.1;
+  parameters.angular_vel = 0.1;
 
   ROS_client = drone_control;
   ROS_client->init(this);
@@ -27,6 +25,9 @@ void Manager::print_parameters()
        << "\ty: " << pose.pose.position.y
        << "\tz: " << pose.pose.position.z
        << "\ttheta: " << pose.pose.orientation.x << endl;
+
+  cout << "\tlinear_vel: " << parameters.linear_vel
+       << "\tangular_vel: " << parameters.angular_vel << endl;
 
   cout << "\tjoy: " << joy.header.stamp << endl;
   cout << "\todom: " << odom.header.stamp << endl;
@@ -65,9 +66,12 @@ void Manager::update()
 
   follow_controller.update_parameters(parameters);
   land_controller.update_parameters(parameters);
+  joy_linear_velocity = parameters.linear_vel;
+  joy_angular_velocity = parameters.angular_vel;
   if (state_machine.update_state(joy))
   {
     send_velocity(0, 0, 0, 0);
+    land_controller.reset_altitude(1);
   }
 }
 
@@ -93,11 +97,11 @@ void Manager::JOY_CONTROL_action()
   {
     return;
   }
-  if (joy_last_timestamp == joy.header.stamp)
-  {
-    send_velocity(0, 0, 0, 0);
-    return;
-  }
+  // if (joy_last_timestamp == joy.header.stamp)
+  // {
+  //   send_velocity(0, 0, 0, 0);
+  //   return;
+  // }
   joy_last_timestamp = joy.header.stamp;
 
   if (joy.axes[JOY_AXES::VERTICAL_ARROW] != 0)
@@ -144,28 +148,38 @@ void Manager::JOY_CONTROL_action()
 
 void Manager::LAND_CONTROL_action()
 {
+  cout << "**********************" << endl;
   geometry_msgs::Twist velocity;
   Speed drone_vel;
-  drone_vel.vx = 0;
-  drone_vel.vy = 0;
-  drone_vel.vz = 0;
-  drone_vel.vtheta = 0;
+  drone_vel.vx = odom.twist.twist.linear.x;
+  drone_vel.vy = odom.twist.twist.linear.y;
+  drone_vel.vz = odom.twist.twist.linear.z;
+  drone_vel.vtheta = odom.twist.twist.angular.z;
 
-  velocity = follow_controller.get_velocity(pose, drone_vel);
+  velocity = land_controller.get_velocity(pose, drone_vel);
   send_velocity(velocity.linear.x,
                 velocity.linear.y,
                 velocity.linear.z,
                 velocity.angular.z);
+
+  cout << "completed_approach: " << land_controller.completed_approach() << endl;
+  if (land_controller.completed_approach())
+  {
+    std_msgs::Empty emptyMsg;
+    ROS_client->land_pub.publish(emptyMsg);
+    state_machine.land();
+  }
+  cout << "**********************" << endl;
 }
 
 void Manager::FOLLOW_CONTROL_action()
 {
   geometry_msgs::Twist velocity;
   Speed drone_vel;
-  drone_vel.vx = 0;
-  drone_vel.vy = 0;
-  drone_vel.vz = 0;
-  drone_vel.vtheta = 0;
+  drone_vel.vx = odom.twist.twist.linear.x;
+  drone_vel.vy = odom.twist.twist.linear.y;
+  drone_vel.vz = odom.twist.twist.linear.z;
+  drone_vel.vtheta = odom.twist.twist.angular.z;
 
   velocity = follow_controller.get_velocity(pose, drone_vel);
   send_velocity(velocity.linear.x,
@@ -224,9 +238,7 @@ void Manager::odomCallback(const nav_msgs::Odometry::ConstPtr &msg)
   mat.getRPY(roll, pitch, yaw);
 
   odom.twist.twist.linear.x = msg->twist.twist.linear.y * cos(yaw) + msg->twist.twist.linear.x * sin(yaw);
-
   odom.twist.twist.linear.y = msg->twist.twist.linear.y * sin(yaw) + msg->twist.twist.linear.x * -cos(yaw);
-
   odom.twist.twist.linear.z = msg->twist.twist.linear.z;
   odom.twist.twist.angular.z = -msg->twist.twist.angular.z;
 }

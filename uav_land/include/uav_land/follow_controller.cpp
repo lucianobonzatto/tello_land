@@ -10,6 +10,8 @@ Follow_Controller::Follow_Controller()
 
     PID::Builder builder;
     builder.setDt(0.05);
+    builder.setOutMax(1);
+    builder.setConditionalIntegration(true);
 
     TelloPDController pd_controller(
         builder,

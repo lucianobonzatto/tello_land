@@ -1,18 +1,17 @@
 # uav_land
 
+# /tello/odom/twist/twist/linear
+# /tello/cmd_vel/linear
+# /tello/odom/twist/twist/angular
+# /tello/cmd_vel/angular
+
 Pacote usadno para pouso autonomo de drone. A ideia é montar um código para utiulizar tanto com o tello_driver quanto com o mavros para pouso de um drone em uma base em movimento utilizando o magni.
 
 
 # files
 
 ### shell_scripts
-
-1. iris_sim: executa o gazebo com um magni e um iris uav e os pacotes necessários para o mng
-
-2. tello_mng: executa os pacotes necessários para o land e para a comunicação com o tello
-
-3. mavros_mng: executa os pacotes necessários para o land e para a comunicação com a pixhawlk 4
-
+1. tello_mng: executa os pacotes necessários para o land e para a comunicação com o tello
 
 # dependencies
 

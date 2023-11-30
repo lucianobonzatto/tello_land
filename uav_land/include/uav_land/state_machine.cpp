@@ -30,6 +30,11 @@ bool State_Machine::update_state(sensor_msgs::Joy newJoy)
     return false;
 }
 
+void State_Machine::land()
+{
+    swap_state(STATES::LAND);
+}
+
 // private methods
 bool State_Machine::STOPPED_update(sensor_msgs::Joy newJoy)
 {
