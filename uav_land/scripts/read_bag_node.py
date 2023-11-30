@@ -13,8 +13,8 @@ from uav_land.msg import controllers_gain
 
 class BagReader:
     def __init__(self):
-        # controllers = ["Cascade", "Parallel", "Gains"]
-        controllers = ["Gains", "Gains/aruco", "PD"]
+        controllers = ["Cascade", "Parallel", "PD"]
+        # controllers = ["Gains", "Gains/aruco", "PD"]
 
         self.csv_headers = [
             "Time",
@@ -50,16 +50,16 @@ class BagReader:
         print(self.index, "\t-> ", bag_filename)
 
         try:
-            with rosbag.Bag(bag_filename, "r") as bag:
-                topics = bag.get_type_and_topic_info().topics.keys()
-                for topic, msg, t in bag.read_messages():
-                    print(t, end="\r")
-                    self.topic_treatment(topic, msg)
-                    if rospy.is_shutdown():
-                        bag.close()
-                        return -1
-
-                bag.close()
+            print(bag_filename)
+            bag = rosbag.Bag(bag_filename, "r")
+            topics = bag.get_type_and_topic_info().topics.keys()
+            for topic, msg, t in bag.read_messages():
+                print(t, end="\r")
+                self.topic_treatment(topic, msg)
+                if rospy.is_shutdown():
+                    bag.close()
+                    return -1
+            bag.close()
 
         except rosbag.ROSBagException as e:
             rospy.logerr("Erro ao reproduzir o arquivo de bag: %s", str(e))
@@ -150,12 +150,10 @@ class BagReader:
 
         print(f'\n{size} dados salvos em "{filename}"')
 
-
 def main():
     rospy.init_node("read_bag_node", anonymous=True)
     app = BagReader()
-    app.static_bag()
-
+    app.show_bags()
 
 if __name__ == "__main__":
     main()
