@@ -54,10 +54,10 @@ uav_y = uav_y.drop_duplicates(subset=uav_y.columns.difference(['Time', 'R_vel_ua
 uav_z = uav_z.drop_duplicates(subset=uav_z.columns.difference(['Time', 'R_vel_uav']))
 uav_r = uav_r.drop_duplicates(subset=uav_r.columns.difference(['Time']))
 
-uav_x.to_csv('log/csv/output/uav_x_V05.csv', index=False)
-uav_y.to_csv('log/csv/output/uav_y_V05.csv', index=False)
-uav_z.to_csv('log/csv/output/uav_z_V05.csv', index=False)
-uav_r.to_csv('log/csv/output/uav_r_V05.csv', index=False)
+# uav_x.to_csv('log/csv/output/uav_x_V05.csv', index=False)
+# uav_y.to_csv('log/csv/output/uav_y_V05.csv', index=False)
+# uav_z.to_csv('log/csv/output/uav_z_V05.csv', index=False)
+# uav_r.to_csv('log/csv/output/uav_r_V05.csv', index=False)
 
 print(uav_x["Time"].diff().dropna().mean())
 print(uav_y["Time"].diff().dropna().mean())
