@@ -177,6 +177,7 @@ include_directories(
   scripts/aruco_node.py
   scripts/bag_odom.py
   scripts/bag_pose.py
+  scripts/bag_aruco.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
