@@ -18,10 +18,10 @@ class BagReader:
 
         self.csv_headers = [
             "Time",
-            "X_vel_uav",
-            "Y_vel_uav",
-            "Z_vel_uav",
-            "R_vel_uav",
+            "X_pose_uav",
+            "Y_pose_uav",
+            "Z_pose_uav",
+            "R_pose_uav",
             "X_cmd_vel",
             "Y_cmd_vel",
             "Z_cmd_vel",

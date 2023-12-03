@@ -13,10 +13,10 @@ def ler_csv(nome_arquivo):
         return None
     
 def plot_uav(ax, uav_x, uav_y, uav_z, uav_r):
-    ax[0].scatter(uav_x["Time"].to_numpy(), uav_x["X_vel_uav"].to_numpy(), c='b', label='vel_uav', s=5)
-    ax[1].scatter(uav_y["Time"].to_numpy(), uav_y["Y_vel_uav"].to_numpy(), c='b', label='vel_uav', s=5)
-    ax[2].scatter(uav_z["Time"].to_numpy(), uav_z["Z_vel_uav"].to_numpy(), c='b', label='vel_uav', s=5)
-    ax[3].scatter(uav_r["Time"].to_numpy(), uav_r["R_vel_uav"].to_numpy(), c='b', label='vel_uav', s=5)
+    ax[0].scatter(uav_x["Time"].to_numpy(), uav_x["X_pose_uav"].to_numpy(), c='b', label='vel_uav', s=5)
+    ax[1].scatter(uav_y["Time"].to_numpy(), uav_y["Y_pose_uav"].to_numpy(), c='b', label='vel_uav', s=5)
+    ax[2].scatter(uav_z["Time"].to_numpy(), uav_z["Z_pose_uav"].to_numpy(), c='b', label='vel_uav', s=5)
+    ax[3].scatter(uav_r["Time"].to_numpy(), uav_r["R_pose_uav"].to_numpy(), c='b', label='vel_uav', s=5)
 
     ax[0].scatter(uav_x["Time"].to_numpy(), uav_x["X_cmd_vel"].to_numpy(), c='r', label='cmd_vel', s=5)
     ax[1].scatter(uav_y["Time"].to_numpy(), uav_y["Y_cmd_vel"].to_numpy(), c='r', label='cmd_vel', s=5)
@@ -40,14 +40,14 @@ uav_y = aruco_z[(aruco_z["Time"] >= time_y[0]) & (aruco_z["Time"] <= time_y[1])]
 uav_z = aruco_z[(aruco_z["Time"] >= time_z[0]) & (aruco_z["Time"] <= time_z[1])]
 uav_r = aruco_z[(aruco_z["Time"] >= time_r[0]) & (aruco_z["Time"] <= time_r[1])]
 
-uav_y["Y_vel_uav"] = uav_y["X_vel_uav"]
+uav_y["Y_pose_uav"] = uav_y["X_pose_uav"]
 uav_y["Y_cmd_vel"] = uav_y["X_cmd_vel"]
-uav_x["X_vel_uav"] = uav_x["Y_vel_uav"]
+uav_x["X_pose_uav"] = uav_x["Y_pose_uav"]
 uav_x["X_cmd_vel"] = uav_x["Y_cmd_vel"]
 
-# uav_x = uav_x.drop_duplicates(subset=uav_x.columns.difference(['Time', 'R_vel_uav']))
-# uav_y = uav_y.drop_duplicates(subset=uav_y.columns.difference(['Time', 'R_vel_uav']))
-# uav_z = uav_z.drop_duplicates(subset=uav_z.columns.difference(['Time', 'R_vel_uav']))
+# uav_x = uav_x.drop_duplicates(subset=uav_x.columns.difference(['Time', 'R_pose_uav']))
+# uav_y = uav_y.drop_duplicates(subset=uav_y.columns.difference(['Time', 'R_pose_uav']))
+# uav_z = uav_z.drop_duplicates(subset=uav_z.columns.difference(['Time', 'R_pose_uav']))
 # uav_r = uav_r.drop_duplicates(subset=uav_r.columns.difference(['Time']))
 
 # uav_x.to_csv('log/csv/output/uav_x_V05.csv', index=False)
