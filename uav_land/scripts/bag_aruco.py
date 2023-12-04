@@ -13,15 +13,15 @@ from uav_land.msg import controllers_gain
 
 class BagReader:
     def __init__(self):
-        # controllers = ["Cascade", "Parallel", "Gains"]
-        controllers = ["Gains", "Gains/aruco", "PD"]
+        # controllers = ["Cascade", "Parallel", "PD"]
+        controllers = ["Gains"]
 
         self.csv_headers = [
             "Time",
-            "X_vel_uav",
-            "Y_vel_uav",
-            "Z_vel_uav",
-            "R_vel_uav",
+            "X_pose_uav",
+            "Y_pose_uav",
+            "Z_pose_uav",
+            "R_pose_uav",
             "X_cmd_vel",
             "Y_cmd_vel",
             "Z_cmd_vel",
@@ -50,16 +50,16 @@ class BagReader:
         print(self.index, "\t-> ", bag_filename)
 
         try:
-            with rosbag.Bag(bag_filename, "r") as bag:
-                topics = bag.get_type_and_topic_info().topics.keys()
-                for topic, msg, t in bag.read_messages():
-                    print(t, end="\r")
-                    self.topic_treatment(topic, msg)
-                    if rospy.is_shutdown():
-                        bag.close()
-                        return -1
-
-                bag.close()
+            print(bag_filename)
+            bag = rosbag.Bag(bag_filename, "r")
+            topics = bag.get_type_and_topic_info().topics.keys()
+            for topic, msg, t in bag.read_messages():
+                print(t, end="\r")
+                self.topic_treatment(topic, msg)
+                if rospy.is_shutdown():
+                    bag.close()
+                    return -1
+            bag.close()
 
         except rosbag.ROSBagException as e:
             rospy.logerr("Erro ao reproduzir o arquivo de bag: %s", str(e))
@@ -90,31 +90,19 @@ class BagReader:
             self.save_csv_uav_pose()
 
     def topic_treatment(self, topic, msg):
-        if topic == "/tello/odom":
-            # rospy.loginfo("Reproduzindo mensagem em %s", topic)
-            self.out_value["X_vel_uav"].append(msg.twist.twist.linear.x)
-            self.out_value["Y_vel_uav"].append(msg.twist.twist.linear.y)
-            self.out_value["Z_vel_uav"].append(msg.twist.twist.linear.z)
-            self.out_value["R_vel_uav"].append(msg.twist.twist.angular.z)
-            self.out_value["Time"].append(msg.header.stamp.to_sec())
 
+        if topic == "/aruco/pose":
+            # rospy.loginfo("Reproduzindo mensagem em %s", topic)
+            self.out_value["Time"].append(msg.header.stamp.to_sec())
+            self.out_value["X_vel_uav"].append(msg.pose.position.x)
+            self.out_value["Y_vel_uav"].append(msg.pose.position.y)
+            self.out_value["Z_vel_uav"].append(msg.pose.position.z)
+            self.out_value["R_vel_uav"].append(0)
+        
             self.out_value["X_cmd_vel"].append(self.x_cmd_vel)
             self.out_value["Y_cmd_vel"].append(self.y_cmd_vel)
             self.out_value["Z_cmd_vel"].append(self.z_cmd_vel)
             self.out_value["R_cmd_vel"].append(self.R_cmd_vel)
-
-        # elif topic == "/aruco/pose":
-        #     # rospy.loginfo("Reproduzindo mensagem em %s", topic)
-        #     self.out_value["Time"].append(msg.header.stamp.to_sec())
-        #     self.out_value["X_vel_uav"].append(msg.pose.position.x)
-        #     self.out_value["Y_vel_uav"].append(msg.pose.position.y)
-        #     self.out_value["Z_vel_uav"].append(msg.pose.position.z)
-        #     self.out_value["R_vel_uav"].append(0)
-        
-        #     self.out_value["X_cmd_vel"].append(self.x_cmd_vel)
-        #     self.out_value["Y_cmd_vel"].append(self.y_cmd_vel)
-        #     self.out_value["Z_cmd_vel"].append(self.z_cmd_vel)
-        #     self.out_value["R_cmd_vel"].append(self.R_cmd_vel)
 
         elif topic == "/tello/cmd_vel":
             # rospy.loginfo("Reproduzindo mensagem em %s", topic)
@@ -125,7 +113,7 @@ class BagReader:
 
     def save_csv_uav_pose(self):
         filename = self.bags[self.index]
-        filename = filename.replace(self.dir_name, "~/tello_ws/src/uav_land/log/csv")
+        filename = filename.replace(self.dir_name, "~/tello_ws/src/uav_land/log/csv/pose")
         filename = filename.replace("bag", "csv")
         filename = os.path.expanduser(filename)
         size = len(self.out_value["Time"])
@@ -150,12 +138,10 @@ class BagReader:
 
         print(f'\n{size} dados salvos em "{filename}"')
 
-
 def main():
     rospy.init_node("read_bag_node", anonymous=True)
     app = BagReader()
-    app.static_bag()
-
+    app.show_bags()
 
 if __name__ == "__main__":
     main()

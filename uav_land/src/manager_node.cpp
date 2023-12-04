@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
   ros::init(argc, argv, "manager_control");
   ros::NodeHandle *nh = new ros::NodeHandle();
-  ros::Rate loop_rate(20);
+  ros::Rate loop_rate(8);
 
   ROSClient ros_client(nh);
   principal.Init(&ros_client);
