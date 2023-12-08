@@ -41,7 +41,7 @@ Land_Controller::Land_Controller()
         builder,
         builder,
         builder);
-    pidController = pidController;
+    pidController = pid_Controller;
 }
 
 Land_Controller::~Land_Controller()
