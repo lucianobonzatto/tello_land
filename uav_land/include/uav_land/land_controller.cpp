@@ -41,7 +41,7 @@ Land_Controller::Land_Controller()
         builder,
         builder,
         builder);
-    pidController = pidController;
+    pidController = pid_Controller;
 }
 
 Land_Controller::~Land_Controller()
@@ -139,6 +139,19 @@ void Land_Controller::update_parameters(uav_land::controllers_gain newParameters
     pdController.update_z(newParameters.pd_ctrl.z.p_gain, newParameters.pd_ctrl.z.d_gain);
     pdController.update_theta(newParameters.pd_ctrl.yaw.p_gain, newParameters.pd_ctrl.yaw.d_gain);
 
+    pidController.update_x( newParameters.pid_ctrl.x.p_gain,
+                            newParameters.pid_ctrl.x.i_gain,
+                            newParameters.pid_ctrl.x.d_gain);
+    pidController.update_y( newParameters.pid_ctrl.y.p_gain,
+                            newParameters.pid_ctrl.y.i_gain,
+                            newParameters.pid_ctrl.y.d_gain);
+    pidController.update_z( newParameters.pid_ctrl.z.p_gain,
+                            newParameters.pid_ctrl.z.i_gain,
+                            newParameters.pid_ctrl.z.d_gain);
+    pidController.update_theta( newParameters.pid_ctrl.yaw.p_gain,
+                                newParameters.pid_ctrl.yaw.i_gain,
+                                newParameters.pid_ctrl.yaw.d_gain);
+                                
     cascadeController.update_x(newParameters.cascade_ctrl.x.pd_ctrl.p_gain,
                                newParameters.cascade_ctrl.x.pd_ctrl.d_gain,
                                newParameters.cascade_ctrl.x.pi_ctrl.p_gain,
