@@ -11,7 +11,7 @@ PID_I_x: 0.2992
 PID_D_x: 1.960
 PID_P_y: 1.034
 PID_I_y: 0.1169
-PID_D_y: 0.3
+PID_D_y: 0.332
 PID_P_z: 1.626
 PID_I_z: 0.4285
 PID_D_z: 0.8012

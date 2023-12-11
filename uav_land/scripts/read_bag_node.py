@@ -6,155 +6,120 @@ import rosbag
 import rospkg
 import datetime
 import subprocess
+import pandas as pd
 import tkinter as tk
 from tkinter import Label, Entry, Button, Radiobutton, StringVar
 from uav_land.msg import controllers_gain
-
+import genpy
 
 class BagReader:
     def __init__(self):
-        # controllers = ["Cascade", "Parallel", "Gains"]
-        controllers = ["Gains", "Gains/aruco", "PD"]
+        print("===")
+        originals_folder = os.path.join("/home/lukn23/bag/tello/PID/original")
+        data = glob.glob(originals_folder + "/*.bag")
+        print(originals_folder, ": ", data.__len__(), " bags")
+        self.time_list = []
 
-        self.csv_headers = [
-            "Time",
-            "X_vel_uav",
-            "Y_vel_uav",
-            "Z_vel_uav",
-            "R_vel_uav",
-            "X_cmd_vel",
-            "Y_cmd_vel",
-            "Z_cmd_vel",
-            "R_cmd_vel",
-        ]
-        self.dir_name = "/media/lukn23/bgs/bag/tello"
-        self.bags = []
-        self.index = -1
+        self.output_folder = os.path.join("/home/lukn23/tello_ws/src/uav_land/log/csv/PID")
 
-        for value in controllers:
-            image_folder = os.path.join(self.dir_name, value)
-            data = glob.glob(image_folder + "/*.bag")
-            print(image_folder, ": ", data.__len__(), " bags")
+        for bag_name in data:
+            try:
+                print(bag_name)
+                with rosbag.Bag(bag_name, "r") as bag:
+                    value = {
+                        'start_time': bag.get_start_time(),
+                        'end_time': bag.get_end_time(),
+                        'name': bag_name.replace(originals_folder+"/", "").replace(".bag", "")
+                    }
+                    self.time_list.append(value)
+                    bag.close()
 
-            for bag in data:
-                self.bags.append(bag)
+            except rosbag.ROSBagException as e:
+                rospy.logerr("Erro ao reproduzir o arquivo de bag: %s", str(e))
+        print("===")
 
-        print("total: ", self.bags.__len__(), " bags")
+    def save_to_csv(self, data, filename):
+        data = pd.DataFrame(data)
+        if not data.empty:
+            data.to_csv(filename, index=False)
 
-    def next_bag(self):
-        self.index = self.index + 1
-        if self.index >= self.bags.__len__():
-            return -1
-
-        bag_filename = self.bags[self.index]
-        print(self.index, "\t-> ", bag_filename)
+    def read_bag(self):
+        # bag_filename = "/home/lukn23/bag/tello/PID/line_rot.bag"
+        bag_filename = "/home/lukn23/bag/tello/PID/move_z.bag"
 
         try:
+            print(bag_filename, ": ", self.time_list.__len__())
             with rosbag.Bag(bag_filename, "r") as bag:
-                topics = bag.get_type_and_topic_info().topics.keys()
-                for topic, msg, t in bag.read_messages():
-                    print(t, end="\r")
-                    self.topic_treatment(topic, msg)
-                    if rospy.is_shutdown():
-                        bag.close()
-                        return -1
+                for time in self.time_list:
+                    folder_name = self.output_folder + "/" + time['name']
+                    if not os.path.exists(folder_name):
+                        os.makedirs(folder_name)
+
+                    print(folder_name)
+
+                    start_time_ros = genpy.Time.from_sec(time['start_time'])
+                    end_time_ros = genpy.Time.from_sec(time['end_time'])
+                    self.tello_odom = []
+                    self.aruco_pose = []
+                    self.magni_pose = []
+
+                    for topic, msg, t in bag.read_messages(start_time=start_time_ros, end_time=end_time_ros):
+                        if rospy.is_shutdown():
+                            bag.close()
+                            return -1
+                        
+                        print(t, end="\r")
+                        self.topic_tratment(topic, msg)
+                    print("")
+                    self.save_to_csv(self.tello_odom, folder_name + "/tello_odom.csv")
+                    self.save_to_csv(self.aruco_pose, folder_name + "/aruco_pose.csv")
+                    self.save_to_csv(self.magni_pose, folder_name + "/magni_pose.csv")
 
                 bag.close()
 
         except rosbag.ROSBagException as e:
             rospy.logerr("Erro ao reproduzir o arquivo de bag: %s", str(e))
 
-    def show_bags(self):
-        while not rospy.is_shutdown():
-            print("-----")
-
-            self.out_value = {
-                "Time": [],
-                "X_vel_uav": [],
-                "Y_vel_uav": [],
-                "Z_vel_uav": [],
-                "R_vel_uav": [],
-                "X_cmd_vel": [],
-                "Y_cmd_vel": [],
-                "Z_cmd_vel": [],
-                "R_cmd_vel": [],
+    def topic_tratment(self, topic, msg):
+        if topic == "/tello/odom":
+            data = {
+                'timestamp': msg.header.stamp.to_sec(),
+                'X_vel':msg.twist.twist.linear.x,
+                'Y_vel':msg.twist.twist.linear.y,
+                'Z_vel':msg.twist.twist.linear.z,
+                'R_vel':msg.twist.twist.angular.z,
+                'X_pose': msg.pose.pose.position.x,
+                'Y_pose': msg.pose.pose.position.y,
+                'Z_pose': msg.pose.pose.position.z,
             }
 
-            self.x_cmd_vel = 0
-            self.y_cmd_vel = 0
-            self.z_cmd_vel = 0
-            self.R_cmd_vel = 0
+            self.tello_odom.append(data)
+        elif topic == "/aruco/pose":
+            data = {
+                'timestamp': msg.header.stamp.to_sec(),
+                'X_pose': msg.pose.position.x,
+                'Y_pose': msg.pose.position.y,
+                'Z_pose': msg.pose.position.z,
+                'R_pose': msg.pose.orientation.x,
+            }
 
-            if self.next_bag() == -1:
-                break
-            self.save_csv_uav_pose()
+            self.aruco_pose.append(data)
+        elif topic == "odom":
+            data = {
+                'timestamp': msg.header.stamp.to_sec(),
+                'X_pose': msg.pose.pose.position.x,
+                'Y_pose': msg.pose.pose.position.y,
+                'Z_pose': msg.pose.pose.position.z
+            }
 
-    def topic_treatment(self, topic, msg):
-        if topic == "/tello/odom":
-            # rospy.loginfo("Reproduzindo mensagem em %s", topic)
-            self.out_value["X_vel_uav"].append(msg.twist.twist.linear.x)
-            self.out_value["Y_vel_uav"].append(msg.twist.twist.linear.y)
-            self.out_value["Z_vel_uav"].append(msg.twist.twist.linear.z)
-            self.out_value["R_vel_uav"].append(msg.twist.twist.angular.z)
-            self.out_value["Time"].append(msg.header.stamp.to_sec())
+            self.magni_pose.append(data)
 
-            self.out_value["X_cmd_vel"].append(self.x_cmd_vel)
-            self.out_value["Y_cmd_vel"].append(self.y_cmd_vel)
-            self.out_value["Z_cmd_vel"].append(self.z_cmd_vel)
-            self.out_value["R_cmd_vel"].append(self.R_cmd_vel)
-
-        # elif topic == "/aruco/pose":
-        #     # rospy.loginfo("Reproduzindo mensagem em %s", topic)
-        #     self.out_value["Time"].append(msg.header.stamp.to_sec())
-        #     self.out_value["X_vel_uav"].append(msg.pose.position.x)
-        #     self.out_value["Y_vel_uav"].append(msg.pose.position.y)
-        #     self.out_value["Z_vel_uav"].append(msg.pose.position.z)
-        #     self.out_value["R_vel_uav"].append(0)
-        
-        #     self.out_value["X_cmd_vel"].append(self.x_cmd_vel)
-        #     self.out_value["Y_cmd_vel"].append(self.y_cmd_vel)
-        #     self.out_value["Z_cmd_vel"].append(self.z_cmd_vel)
-        #     self.out_value["R_cmd_vel"].append(self.R_cmd_vel)
-
-        elif topic == "/tello/cmd_vel":
-            # rospy.loginfo("Reproduzindo mensagem em %s", topic)
-            self.x_cmd_vel = msg.linear.x
-            self.y_cmd_vel = msg.linear.y
-            self.z_cmd_vel = msg.linear.z
-            self.R_cmd_vel = msg.angular.z
-
-    def save_csv_uav_pose(self):
-        filename = self.bags[self.index]
-        filename = filename.replace(self.dir_name, "~/tello_ws/src/uav_land/log/csv")
-        filename = filename.replace("bag", "csv")
-        filename = os.path.expanduser(filename)
-        size = len(self.out_value["Time"])
-
-        with open(filename, "w", newline="") as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(self.csv_headers)
-            for i in range(size):
-                writer.writerow(
-                    [
-                        self.out_value["Time"][i],
-                        self.out_value["X_vel_uav"][i],
-                        self.out_value["Y_vel_uav"][i],
-                        self.out_value["Z_vel_uav"][i],
-                        self.out_value["R_vel_uav"][i],
-                        self.out_value["X_cmd_vel"][i],
-                        self.out_value["Y_cmd_vel"][i],
-                        self.out_value["Z_cmd_vel"][i],
-                        self.out_value["R_cmd_vel"][i],
-                    ]
-                )
-
-        print(f'\n{size} dados salvos em "{filename}"')
-
+            
 
 def main():
     rospy.init_node("read_bag_node", anonymous=True)
     app = BagReader()
-    app.static_bag()
+    app.read_bag()
 
 
 if __name__ == "__main__":
