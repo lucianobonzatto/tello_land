@@ -10,6 +10,7 @@ import pandas as pd
 import tkinter as tk
 from tkinter import Label, Entry, Button, Radiobutton, StringVar
 from uav_land.msg import controllers_gain
+from tf.transformations import euler_from_quaternion
 import genpy
 
 class BagReader:
@@ -68,8 +69,8 @@ class BagReader:
                             bag.close()
                             return -1
                         
-                        print(t, end="\r")
-                        self.topic_tratment(topic, msg)
+                        print(t.to_sec(), end="\r")
+                        self.topic_tratment(topic, msg, t)
                     print("")
                     self.save_to_csv(self.tello_odom, folder_name + "/tello_odom.csv")
                     self.save_to_csv(self.aruco_pose, folder_name + "/aruco_pose.csv")
@@ -80,10 +81,10 @@ class BagReader:
         except rosbag.ROSBagException as e:
             rospy.logerr("Erro ao reproduzir o arquivo de bag: %s", str(e))
 
-    def topic_tratment(self, topic, msg):
+    def topic_tratment(self, topic, msg, t):
         if topic == "/tello/odom":
             data = {
-                'timestamp': msg.header.stamp.to_sec(),
+                'timestamp': t.to_sec(),
                 'X_vel':msg.twist.twist.linear.x,
                 'Y_vel':msg.twist.twist.linear.y,
                 'Z_vel':msg.twist.twist.linear.z,
@@ -96,7 +97,7 @@ class BagReader:
             self.tello_odom.append(data)
         elif topic == "/aruco/pose":
             data = {
-                'timestamp': msg.header.stamp.to_sec(),
+                'timestamp': t.to_sec(),
                 'X_pose': msg.pose.position.x,
                 'Y_pose': msg.pose.position.y,
                 'Z_pose': msg.pose.position.z,
@@ -105,11 +106,21 @@ class BagReader:
 
             self.aruco_pose.append(data)
         elif topic == "odom":
+            quaternion = (
+                msg.pose.pose.orientation.x,
+                msg.pose.pose.orientation.y,
+                msg.pose.pose.orientation.z,
+                msg.pose.pose.orientation.w
+            )
+            roll, pitch, yaw = euler_from_quaternion(quaternion)
+            # print(msg.pose.pose)
+
             data = {
-                'timestamp': msg.header.stamp.to_sec(),
+                'timestamp': t.to_sec(),
                 'X_pose': msg.pose.pose.position.x,
                 'Y_pose': msg.pose.pose.position.y,
-                'Z_pose': msg.pose.pose.position.z
+                'Z_pose': msg.pose.pose.position.z,
+                'R_pose': yaw
             }
 
             self.magni_pose.append(data)
