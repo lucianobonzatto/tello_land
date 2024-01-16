@@ -1,5 +1,5 @@
 <launch>
-  <node name="manager_node" pkg="uav_land" type="manager_node" output="screen">
+  <node name="uav_manager" pkg="uav_land" type="manager_node" output="screen">
     <param name="joy_linear_velocity" value="0.2" />
     <param name="joy_angular_velocity" value="0.2" />
   </node>

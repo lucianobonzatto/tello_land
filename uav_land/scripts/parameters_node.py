@@ -214,7 +214,7 @@ class ControllerGUI:
 def main():
     teste = controllers_gain()
 
-    rospy.init_node('controller_gui_node', anonymous=True)
+    rospy.init_node('controller_gui', anonymous=True)
     root = tk.Tk()
     app = ControllerGUI(root)
     root.mainloop()
