@@ -4,7 +4,9 @@ import cv2.aruco as aruco
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 import pandas as pd
-
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+from matplotlib.lines import Line2D
 
 class ImageReader:
     def __init__(self, image_folder):
@@ -25,7 +27,6 @@ class ImageReader:
         self.image_folder = image_folder
         self.data = pd.DataFrame(
             columns=[
-                "Image Name",
                 "Marker ID",
                 "Tx (m)",
                 "Ty (m)",
@@ -36,6 +37,11 @@ class ImageReader:
             ]
         )
 
+        self.fig, self.ax = plt.subplots(2, 2)
+
+        self.colors = {272: 'r', 682: 'g', 0: 'b'}
+        self.labels = {272: 'Marker 272', 682: 'Marker 682', 0: 'Marker 0'}
+
     def save_to_csv(self, filename):
         print("Saving data to:", filename)
         self.data.to_csv(filename, index=False)
@@ -45,7 +51,7 @@ class ImageReader:
         image_files = [
             f for f in os.listdir(self.image_folder) if f.endswith((".png", ".jpg"))
         ]
-
+        image_files = sorted(image_files)
 
         for image_file in image_files:
             image_path = os.path.join(self.image_folder, image_file)
@@ -73,66 +79,75 @@ class ImageReader:
                             self.distortion_coeffs,
                         )
 
-                        # rvecs[0][0][0] = 0
-                        # rvecs[0][0][1] = 0
-                        # rvecs[0][0][2] = 0
-
-                        # while(1):
-
-                        #     # rvecs[0][0][0] = rvecs[0][0][0] + 0.1
-                        #     # rvecs[0][0][1] = rvecs[0][0][1] + 0.1
-                        #     rvecs[0][0][2] = rvecs[0][0][2] + 0.1
-
-                        frame = cv2.drawFrameAxes(
-                            frame,self.camera_matrix,self.distortion_coeffs,
-                            rvecs[0],tvecs[0],marker_length,
-                        )
-                        #     cv2.imshow("Processed Image", teste)
-                        #     cv2.waitKey(0)
-
                         if rvecs is not None and tvecs is not None:
                             tvecs = np.squeeze(tvecs)
                             rvecs = np.squeeze(rvecs)
-                            data_row = {
-                                "Marker ID": marker_id,
-                                "Tx (m)": -tvecs[1],
-                                "Ty (m)": -tvecs[0],
-                                "Tz (m)": -tvecs[2],
-                            }
-                            print("----------------------")
-                            print(
-                                "ID", "\t",
-                                "Tx (m)", "\t",
-                                "Ty (m)", "\t",
-                                "Tz (m)", "\t",
-                            )
-                            print(
-                                data_row["Marker ID"], "\t",
-                                f"{data_row['Tx (m)']:.4f}", "\t",
-                                f"{data_row['Ty (m)']:.4f}", "\t",
-                                f"{data_row['Tz (m)']:.4f}", "\t",
-                            )
+                            rotation_matrix_euler = R.from_rotvec(rvecs).as_euler('ZYX')
+                            PCenterCameraFrame = self.LandpadFrameToCameraFrame(tvecs, rvecs, marker_id)
 
-                            self.LandpadFrameToCameraFrame(tvecs, rvecs, marker_id)
-                            print("\n")
+                            data_row = {
+                                # "time": t,
+                                "Marker ID": marker_id,
+                                "Tx (m)": tvecs[1],
+                                "Ty (m)": -tvecs[0],
+                                "Tz (m)": tvecs[2],
+                                "Rx (deg)": rotation_matrix_euler[0],
+                                "Ry (deg)": rotation_matrix_euler[1],
+                                "Rz (deg)": rotation_matrix_euler[2],
+                                "Tx_cam": PCenterCameraFrame[0],
+                                "Ty_cam": PCenterCameraFrame[1],
+                                "Tz_cam": PCenterCameraFrame[2],
+                            }
+                            self.data = pd.concat([self.data, pd.DataFrame([data_row])], ignore_index=True)
 
                 cv2.imshow("Processed Image", frame)
-                cv2.waitKey(0)
+                self.update_plot()
+                # cv2.waitKey(1)
+
+    def update_plot(self):
+        tx_values = self.data["Tx (m)"]
+        ty_values = self.data["Ty (m)"]
+        tz_values = self.data["Tz (m)"]
+        tx_cam_values = self.data["Tx_cam"]
+        ty_cam_values = self.data["Ty_cam"]
+        tz_cam_values = self.data["Tz_cam"]
+        marker_ids = self.data["Marker ID"]
+        colors = [self.colors[id] for id in marker_ids]
+
+        self.ax[0][0].scatter(tx_values, ty_values, c=colors)
+        # self.ax[0][0].scatter(tx_cam_values, ty_cam_values, c=colors, marker='*')
+        legend_elements = [Line2D([0], [0], marker='o', color='w', label=self.labels[id], markerfacecolor=color, markersize=10) for id, color in self.colors.items()]
+        self.ax[0][0].legend(handles=legend_elements, loc='best')
+
+        self.ax[0][1].set_title('Tx (m)')
+        self.ax[0][1].scatter(range(len(tx_values)), tx_values, c=colors)
+        self.ax[1][0].set_title('Ty (m)')
+        self.ax[1][0].scatter(range(len(ty_values)), ty_values, c=colors)
+        self.ax[1][1].set_title('Tz (m)')
+        self.ax[1][1].scatter(range(len(tz_values)), tz_values, c=colors)
+
+        plt.draw()
+        plt.pause(0.001)
+        
+        self.ax[0][0].cla()
+        self.ax[0][1].cla()
+        self.ax[1][0].cla()
+        self.ax[1][1].cla()
 
     def LandpadFrameToCameraFrame(self, Tvec, Rvec, id):
         if id not in [272, 682, 0]:
             return np.array([-999.0, -999.0, -999.0]), np.array([-999.0, -999.0, -999.0])
         
-        print("Tvec:", Tvec)
-        print("Rvec:", Rvec)
+        # print("Tvec:", Tvec)
+        # print("Rvec:", Rvec)
 
         r = R.from_rotvec(Rvec)
         TransformationMatrixCameraToAruco = np.eye(4)
         TransformationMatrixCameraToAruco[:3, :3] = r.as_matrix()
         TransformationMatrixCameraToAruco[:3, 3] = Tvec
         
-        print("\nTransformationMatrixCameraToAruco:")
-        print(TransformationMatrixCameraToAruco)
+        # print("\nTransformationMatrixCameraToAruco:")
+        # print(TransformationMatrixCameraToAruco)
 
         PAr272 = np.array([0.320, 0.215, 0])
         PAr682 = np.array([0.043, 0.038, 0])
@@ -150,16 +165,16 @@ class ImageReader:
             TransformationMatrixArucoToLandpad[1, 1] = -1
             TransformationMatrixArucoToLandpad[:3, 3] = PAr000
 
-        print("\nTransformationMatrixArucoToLandpad:")
-        print(TransformationMatrixArucoToLandpad)
+        # print("\nTransformationMatrixArucoToLandpad:")
+        # print(TransformationMatrixArucoToLandpad)
 
         TransformationMatrixCameraToLandpad = np.matmul(
             TransformationMatrixCameraToAruco,
             np.linalg.inv(TransformationMatrixArucoToLandpad),
         )
 
-        print("\nTransformationMatrixCameraToLandpad:")
-        print(TransformationMatrixCameraToLandpad)
+        # print("\nTransformationMatrixCameraToLandpad:")
+        # print(TransformationMatrixCameraToLandpad)
 
         PCamera = np.array([Tvec[0], Tvec[1], Tvec[2], 1])
         PLandpadFrame = np.matmul(TransformationMatrixCameraToLandpad, PCamera)
@@ -181,16 +196,18 @@ class ImageReader:
         PCenterCameraFrame = np.matmul(
             np.linalg.inv(TransformationMatrixCameraToLandpad), np.array(Delta)
         )
-        print("\nPCenterCameraFrame:")
-        print(PCenterCameraFrame)
+        # print("\nPCenterCameraFrame:")
+        # print(PCenterCameraFrame)
 
         return PCenterCameraFrame[:3]
 
 
 def main():
     app = ImageReader("/home/lukn23/Desktop/rgb/read")
+    # app = ImageReader("/home/lukn23/Desktop/rgb/images")
     app.process_images()
     app.save_to_csv("dados_posicoes.csv")
+    plt.waitforbuttonpress()
 
 
 if __name__ == "__main__":
