@@ -162,7 +162,6 @@ class ImageReader:
         print("Rvec:", Rvec)
 
         # Cria a matriz de transformação Aruco -> Câmera
-
         r = R.from_rotvec(Rvec)
         TM_Aruco_To_Camera = np.eye(4)
         TM_Aruco_To_Camera[:3, :3] = r.as_matrix()
@@ -173,7 +172,6 @@ class ImageReader:
 
         # Cria a matriz de transformação Landpad -> Câmera
         TM_Landpad_To_Camera = TM_Aruco_To_Camera @ self.TM_Landpad_To_Aruco_000
-        
         if id == 272:
             TM_Landpad_To_Camera = TM_Aruco_To_Camera @ self.TM_Landpad_To_Aruco_272
         elif id == 682:
