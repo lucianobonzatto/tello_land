@@ -37,10 +37,35 @@ class ImageReader:
             ]
         )
 
-        self.fig, self.ax = plt.subplots(2, 2)
+        self.fig, self.ax = plt.subplots()
 
         self.colors = {272: 'r', 682: 'g', 0: 'b'}
         self.labels = {272: 'Marker 272', 682: 'Marker 682', 0: 'Marker 0'}
+
+        # Cria a matriz de transformação Landpad -> Aruco
+
+        # Position_272 = np.array([-0.255, -0.160, 0])
+        Position_272 = np.array([0.320, 0.215, 0])
+        Rotation_272 = np.eye(3)
+
+        Position_682 = np.array([0.043, 0.038, 0])
+        Rotation_682 = np.eye(3)
+
+        # Position_000 = np.array([0.320, 0.215, 0])
+        Position_000 = np.array([-0.255, -0.160, 0])
+        Rotation_000 = np.eye(3)
+        
+        self.TM_Landpad_To_Aruco_272 = np.eye(4)
+        self.TM_Landpad_To_Aruco_272[:3, :3] = Rotation_272
+        self.TM_Landpad_To_Aruco_272[:3, 3] = Position_272
+
+        self.TM_Landpad_To_Aruco_682 = np.eye(4)
+        self.TM_Landpad_To_Aruco_682[:3, :3] = Rotation_682
+        self.TM_Landpad_To_Aruco_682[:3, 3] = Position_682
+
+        self.TM_Landpad_To_Aruco_000 = np.eye(4)
+        self.TM_Landpad_To_Aruco_000[:3, :3] = Rotation_000
+        self.TM_Landpad_To_Aruco_000[:3, 3] = Position_000
 
     def save_to_csv(self, filename):
         print("Saving data to:", filename)
@@ -78,25 +103,28 @@ class ImageReader:
                             self.camera_matrix,
                             self.distortion_coeffs,
                         )
+                        frame = cv2.drawFrameAxes(frame,self.camera_matrix,self.distortion_coeffs,rvecs,tvecs,marker_length)
 
                         if rvecs is not None and tvecs is not None:
                             tvecs = np.squeeze(tvecs)
                             rvecs = np.squeeze(rvecs)
                             rotation_matrix_euler = R.from_rotvec(rvecs).as_euler('ZYX')
-                            PCenterCameraFrame = self.LandpadFrameToCameraFrame(tvecs, rvecs, marker_id)
+                            pos_landpad_to_camera = self.LandpadFrameToCameraFrame(tvecs, rvecs, marker_id)
+
+                            print(pos_landpad_to_camera)
 
                             data_row = {
                                 # "time": t,
                                 "Marker ID": marker_id,
-                                "Tx (m)": tvecs[1],
-                                "Ty (m)": -tvecs[0],
+                                "Tx (m)": tvecs[0],
+                                "Ty (m)": tvecs[1],
                                 "Tz (m)": tvecs[2],
                                 "Rx (deg)": rotation_matrix_euler[0],
                                 "Ry (deg)": rotation_matrix_euler[1],
                                 "Rz (deg)": rotation_matrix_euler[2],
-                                "Tx_cam": PCenterCameraFrame[0],
-                                "Ty_cam": PCenterCameraFrame[1],
-                                "Tz_cam": PCenterCameraFrame[2],
+                                "Tx_cam": pos_landpad_to_camera[0],
+                                "Ty_cam": pos_landpad_to_camera[1],
+                                "Tz_cam": pos_landpad_to_camera[2],
                             }
                             self.data = pd.concat([self.data, pd.DataFrame([data_row])], ignore_index=True)
 
@@ -114,92 +142,50 @@ class ImageReader:
         marker_ids = self.data["Marker ID"]
         colors = [self.colors[id] for id in marker_ids]
 
-        self.ax[0][0].scatter(tx_values, ty_values, c=colors)
-        # self.ax[0][0].scatter(tx_cam_values, ty_cam_values, c=colors, marker='*')
+        self.ax.scatter(tx_values, ty_values, c=colors)
+        self.ax.scatter(tx_cam_values, ty_cam_values, c=colors, marker='*')
         legend_elements = [Line2D([0], [0], marker='o', color='w', label=self.labels[id], markerfacecolor=color, markersize=10) for id, color in self.colors.items()]
-        self.ax[0][0].legend(handles=legend_elements, loc='best')
-
-        self.ax[0][1].set_title('Tx (m)')
-        self.ax[0][1].scatter(range(len(tx_values)), tx_values, c=colors)
-        self.ax[1][0].set_title('Ty (m)')
-        self.ax[1][0].scatter(range(len(ty_values)), ty_values, c=colors)
-        self.ax[1][1].set_title('Tz (m)')
-        self.ax[1][1].scatter(range(len(tz_values)), tz_values, c=colors)
+        self.ax.legend(handles=legend_elements, loc='best')
 
         plt.draw()
         plt.pause(0.001)
         
-        self.ax[0][0].cla()
-        self.ax[0][1].cla()
-        self.ax[1][0].cla()
-        self.ax[1][1].cla()
+        self.ax.cla()
 
     def LandpadFrameToCameraFrame(self, Tvec, Rvec, id):
-        if id not in [272, 682, 0]:
-            return np.array([-999.0, -999.0, -999.0]), np.array([-999.0, -999.0, -999.0])
+        # if id not in [272, 682, 0]:
+        if id not in [272, 0]:
+            return np.array([0, 0, 0])
+            # return np.array([-999.0, -999.0, -999.0])
         
-        # print("Tvec:", Tvec)
-        # print("Rvec:", Rvec)
+        print("Tvec:", Tvec)
+        print("Rvec:", Rvec)
+
+        # Cria a matriz de transformação Aruco -> Câmera
 
         r = R.from_rotvec(Rvec)
-        TransformationMatrixCameraToAruco = np.eye(4)
-        TransformationMatrixCameraToAruco[:3, :3] = r.as_matrix()
-        TransformationMatrixCameraToAruco[:3, 3] = Tvec
+        TM_Aruco_To_Camera = np.eye(4)
+        TM_Aruco_To_Camera[:3, :3] = r.as_matrix()
+        TM_Aruco_To_Camera[:3, 3] = Tvec
         
-        # print("\nTransformationMatrixCameraToAruco:")
-        # print(TransformationMatrixCameraToAruco)
+        print("\nTM_Aruco_To_Camera:")
+        print(TM_Aruco_To_Camera)
 
-        PAr272 = np.array([0.320, 0.215, 0])
-        PAr682 = np.array([0.043, 0.038, 0])
-        PAr000 = np.array([-0.255, -0.160, 0])
-
-        TransformationMatrixArucoToLandpad = np.eye(4)
+        # Cria a matriz de transformação Landpad -> Câmera
+        TM_Landpad_To_Camera = TM_Aruco_To_Camera @ self.TM_Landpad_To_Aruco_000
+        
         if id == 272:
-            TransformationMatrixArucoToLandpad[0, 0] = -1
-            TransformationMatrixArucoToLandpad[1, 1] = -1
-            TransformationMatrixArucoToLandpad[:3, 3] = PAr272
+            TM_Landpad_To_Camera = TM_Aruco_To_Camera @ self.TM_Landpad_To_Aruco_272
         elif id == 682:
-            TransformationMatrixArucoToLandpad[:3, 3] = PAr682
+            TM_Landpad_To_Camera = TM_Aruco_To_Camera @ self.TM_Landpad_To_Aruco_682
         elif id == 0:
-            TransformationMatrixArucoToLandpad[0, 0] = -1
-            TransformationMatrixArucoToLandpad[1, 1] = -1
-            TransformationMatrixArucoToLandpad[:3, 3] = PAr000
+            TM_Landpad_To_Camera = TM_Aruco_To_Camera @ self.TM_Landpad_To_Aruco_000
 
-        # print("\nTransformationMatrixArucoToLandpad:")
-        # print(TransformationMatrixArucoToLandpad)
+        print("\nTM_Landpad_To_Camera:")
+        print(TM_Landpad_To_Camera)
 
-        TransformationMatrixCameraToLandpad = np.matmul(
-            TransformationMatrixCameraToAruco,
-            np.linalg.inv(TransformationMatrixArucoToLandpad),
-        )
-
-        # print("\nTransformationMatrixCameraToLandpad:")
-        # print(TransformationMatrixCameraToLandpad)
-
-        PCamera = np.array([Tvec[0], Tvec[1], Tvec[2], 1])
-        PLandpadFrame = np.matmul(TransformationMatrixCameraToLandpad, PCamera)
-
-        Delta = np.array([-999.0, -999.0, -999.0, 1])
-        if id == 272:
-            Delta[0] = PLandpadFrame[0] - PAr272[0]
-            Delta[1] = PLandpadFrame[1] - PAr272[1]
-            Delta[2] = 0
-        elif id == 682:
-            Delta[0] = PLandpadFrame[0] - PAr682[0]
-            Delta[1] = PLandpadFrame[1] - PAr682[1]
-            Delta[2] = 0
-        elif id == 0:
-            Delta[0] = PLandpadFrame[0] - PAr000[0]
-            Delta[1] = PLandpadFrame[1] - PAr000[1]
-            Delta[2] = 0
-
-        PCenterCameraFrame = np.matmul(
-            np.linalg.inv(TransformationMatrixCameraToLandpad), np.array(Delta)
-        )
-        # print("\nPCenterCameraFrame:")
-        # print(PCenterCameraFrame)
-
-        return PCenterCameraFrame[:3]
+        pos_landpad_to_camera = TM_Landpad_To_Camera[:3, 3]
+        return pos_landpad_to_camera
 
 
 def main():
@@ -208,7 +194,6 @@ def main():
     app.process_images()
     app.save_to_csv("dados_posicoes.csv")
     plt.waitforbuttonpress()
-
 
 if __name__ == "__main__":
     main()
