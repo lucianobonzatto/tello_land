@@ -44,15 +44,19 @@ class ImageReader:
 
         # Cria a matriz de transformação Landpad -> Aruco
 
-        # Position_272 = np.array([-0.255, -0.160, 0])
-        Position_272 = np.array([0.320, 0.215, 0])
+        Position_272 = np.array([-0.255, -0.160, 0])
+        # Position_272 = np.array([0.320, 0.215, 0])
         Rotation_272 = np.eye(3)
 
         Position_682 = np.array([0.043, 0.038, 0])
-        Rotation_682 = np.eye(3)
+        Rotation_682 = np.array([
+            [-1, 0, 0],  # Cos(180) = -1, Sin(180) = 0
+            [0, -1, 0],  # Cos(180) = -1, Sin(180) = 0
+            [0, 0, 1]    # Eixo Z permanece o mesmo
+        ])
 
-        # Position_000 = np.array([0.320, 0.215, 0])
-        Position_000 = np.array([-0.255, -0.160, 0])
+        Position_000 = np.array([0.320, 0.215, 0])
+        # Position_000 = np.array([-0.255, -0.160, 0])
         Rotation_000 = np.eye(3)
         
         self.TM_Landpad_To_Aruco_272 = np.eye(4)
@@ -109,7 +113,7 @@ class ImageReader:
                             tvecs = np.squeeze(tvecs)
                             rvecs = np.squeeze(rvecs)
                             rotation_matrix_euler = R.from_rotvec(rvecs).as_euler('ZYX')
-                            pos_landpad_to_camera = self.LandpadFrameToCameraFrame(tvecs, rvecs, marker_id)
+                            pos_landpad_to_camera = self.landpad_to_camera(tvecs, rvecs, marker_id)
 
                             print(pos_landpad_to_camera)
 
@@ -152,9 +156,8 @@ class ImageReader:
         
         self.ax.cla()
 
-    def LandpadFrameToCameraFrame(self, Tvec, Rvec, id):
-        # if id not in [272, 682, 0]:
-        if id not in [272, 0]:
+    def landpad_to_camera(self, Tvec, Rvec, id):
+        if id not in [272, 682, 0]:
             return np.array([0, 0, 0])
             # return np.array([-999.0, -999.0, -999.0])
         
@@ -187,8 +190,8 @@ class ImageReader:
 
 
 def main():
-    app = ImageReader("/home/lukn23/Desktop/rgb/read")
-    # app = ImageReader("/home/lukn23/Desktop/rgb/images")
+    # app = ImageReader("/home/lukn23/Desktop/rgb/read")
+    app = ImageReader("/home/lukn23/Desktop/rgb/images")
     app.process_images()
     app.save_to_csv("dados_posicoes.csv")
     plt.waitforbuttonpress()
