@@ -1,15 +1,17 @@
 import os
+import rosbag
+import numpy as np
+import pandas as pd
 import cv2
 import cv2.aruco as aruco
-import numpy as np
+from cv_bridge import CvBridge
 from scipy.spatial.transform import Rotation as R
-import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.lines import Line2D
 
-class ImageReader:
-    def __init__(self, image_folder):
+class BagReader:
+    def __init__(self, bag_filename):
         self.camera_matrix = np.array(
             [
                 [3.02573320e03, 0.00000000e00, 1.02641519e03],
@@ -23,17 +25,22 @@ class ImageReader:
         self.marker_sizes = {272: 0.15, 682: 0.08, 0: 0.25}
         self.dictionary = aruco.Dictionary_get(aruco.DICT_ARUCO_ORIGINAL)
         self.parameters = aruco.DetectorParameters_create()
+        self.bridge = CvBridge()
 
-        self.image_folder = image_folder
+        self.bag_filename = bag_filename
         self.data = pd.DataFrame(
             columns=[
+                "time",
                 "Marker ID",
-                "Tx (m)",
-                "Ty (m)",
-                "Tz (m)",
-                "Rx (deg)",
-                "Ry (deg)",
-                "Rz (deg)",
+                "Tx",
+                "Ty",
+                "Tz",
+                "Rx",
+                "Ry",
+                "Rz",
+                "Tx_cam",
+                "Ty_cam",
+                "Tz_cam",
             ]
         )
 
@@ -80,72 +87,72 @@ class ImageReader:
     def save_to_csv(self, filename):
         print("Saving data to:", filename)
         self.data.to_csv(filename, index=False)
+        
+    def show_bag(self):
+        print("bag name: ", self.bag_filename)
+        try:
+            with rosbag.Bag(self.bag_filename, "r") as bag:
+                for topic, msg, t in bag.read_messages():
+                    self.topic_treatment(topic, msg, t)
+                bag.close()
 
-    def process_images(self):
-        # Get all image files from the folder
-        image_files = [
-            f for f in os.listdir(self.image_folder) if f.endswith((".png", ".jpg"))
-        ]
-        image_files = sorted(image_files)
+        except rosbag.ROSBagException as e:
+            print("Erro ao reproduzir o arquivo de bag: %s", str(e))
 
-        for image_file in image_files:
-            image_path = os.path.join(self.image_folder, image_file)
-            frame = cv2.imread(image_path)
+    def topic_treatment(self, topic, msg, t):
+        if topic == "/camera/image_raw":
+            frame = self.bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            corners, ids, rejected_points = aruco.detectMarkers(
+                gray_frame, self.dictionary, parameters=self.parameters
+            )
 
-            if frame is not None:
-                gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                corners, ids, rejected_points = aruco.detectMarkers(
-                    gray_frame, self.dictionary, parameters=self.parameters
-                )
+            if ids is not None:
+                ids_to_process = [
+                    (i, id[0])
+                    for i, id in enumerate(ids)
+                    if id[0] in self.marker_sizes
+                ]
 
-                if ids is not None:
-                    ids_to_process = [
-                        (i, id[0])
-                        for i, id in enumerate(ids)
-                        if id[0] in self.marker_sizes
-                    ]
+                for i, marker_id in ids_to_process:
+                    marker_length = self.marker_sizes[marker_id]
+                    rvecs, tvecs, _objPoints = aruco.estimatePoseSingleMarkers(
+                        corners[i : i + 1],
+                        marker_length,
+                        self.camera_matrix,
+                        self.distortion_coeffs,
+                    )
+                    frame = cv2.drawFrameAxes(frame,self.camera_matrix,self.distortion_coeffs,rvecs,tvecs,marker_length)
 
-                    for i, marker_id in ids_to_process:
-                        marker_length = self.marker_sizes[marker_id]
-                        rvecs, tvecs, _objPoints = aruco.estimatePoseSingleMarkers(
-                            corners[i : i + 1],
-                            marker_length,
-                            self.camera_matrix,
-                            self.distortion_coeffs,
-                        )
-                        frame = cv2.drawFrameAxes(frame,self.camera_matrix,self.distortion_coeffs,rvecs,tvecs,marker_length)
+                    if rvecs is not None and tvecs is not None:
+                        tvecs = np.squeeze(tvecs)
+                        rvecs = np.squeeze(rvecs)
+                        rotation_matrix_euler = R.from_rotvec(rvecs).as_euler('ZYX')
+                        pos_landpad_to_camera = self.landpad_to_camera(tvecs, rvecs, marker_id)
 
-                        if rvecs is not None and tvecs is not None:
-                            tvecs = np.squeeze(tvecs)
-                            rvecs = np.squeeze(rvecs)
-                            rotation_matrix_euler = R.from_rotvec(rvecs).as_euler('ZYX')
-                            pos_landpad_to_camera = self.landpad_to_camera(tvecs, rvecs, marker_id)
+                        data_row = {
+                            # "time": t,
+                            "Marker ID": marker_id,
+                            "Tx": tvecs[0],
+                            "Ty": tvecs[1],
+                            "Tz": tvecs[2],
+                            "Rx": rotation_matrix_euler[0],
+                            "Ry": rotation_matrix_euler[1],
+                            "Rz": rotation_matrix_euler[2],
+                            "Tx_cam": pos_landpad_to_camera[0],
+                            "Ty_cam": pos_landpad_to_camera[1],
+                            "Tz_cam": pos_landpad_to_camera[2],
+                        }
+                        self.data = pd.concat([self.data, pd.DataFrame([data_row])], ignore_index=True)
 
-                            print(pos_landpad_to_camera)
-
-                            data_row = {
-                                # "time": t,
-                                "Marker ID": marker_id,
-                                "Tx (m)": tvecs[0],
-                                "Ty (m)": tvecs[1],
-                                "Tz (m)": tvecs[2],
-                                "Rx (deg)": rotation_matrix_euler[0],
-                                "Ry (deg)": rotation_matrix_euler[1],
-                                "Rz (deg)": rotation_matrix_euler[2],
-                                "Tx_cam": pos_landpad_to_camera[0],
-                                "Ty_cam": pos_landpad_to_camera[1],
-                                "Tz_cam": pos_landpad_to_camera[2],
-                            }
-                            self.data = pd.concat([self.data, pd.DataFrame([data_row])], ignore_index=True)
-
-                cv2.imshow("Processed Image", frame)
-                self.update_plot()
-                # cv2.waitKey(1)
+            cv2.imshow("Image", frame)
+            self.update_plot()
+            cv2.waitKey(1)
 
     def update_plot(self):
-        tx_values = self.data["Tx (m)"]
-        ty_values = self.data["Ty (m)"]
-        tz_values = self.data["Tz (m)"]
+        tx_values = self.data["Tx"]
+        ty_values = self.data["Ty"]
+        tz_values = self.data["Tz"]
         tx_cam_values = self.data["Tx_cam"]
         ty_cam_values = self.data["Ty_cam"]
         tz_cam_values = self.data["Tz_cam"]
@@ -166,18 +173,12 @@ class ImageReader:
         if id not in [272, 682, 0]:
             return np.array([0, 0, 0])
             # return np.array([-999.0, -999.0, -999.0])
-        
-        print("Tvec:", Tvec)
-        print("Rvec:", Rvec)
 
         # Cria a matriz de transformação Aruco -> Câmera
         r = R.from_rotvec(Rvec)
         TM_Aruco_To_Camera = np.eye(4)
         TM_Aruco_To_Camera[:3, :3] = r.as_matrix()
         TM_Aruco_To_Camera[:3, 3] = Tvec
-        
-        print("\nTM_Aruco_To_Camera:")
-        print(TM_Aruco_To_Camera)
 
         # Cria a matriz de transformação Landpad -> Câmera
         TM_Landpad_To_Camera = TM_Aruco_To_Camera @ self.TM_Landpad_To_Aruco_000
@@ -188,19 +189,14 @@ class ImageReader:
         elif id == 0:
             TM_Landpad_To_Camera = TM_Aruco_To_Camera @ self.TM_Landpad_To_Aruco_000
 
-        print("\nTM_Landpad_To_Camera:")
-        print(TM_Landpad_To_Camera)
-
         pos_landpad_to_camera = TM_Landpad_To_Camera[:3, 3]
         return pos_landpad_to_camera
 
 
 def main():
-    app = ImageReader("/home/lukn23/Desktop/rgb/read")
-    # app = ImageReader("/home/lukn23/Desktop/rgb/images")
-    app.process_images()
+    app = BagReader("/home/lukn23/Desktop/rgb/teste.bag")
+    app.show_bag()
     app.save_to_csv("dados_posicoes.csv")
-    plt.waitforbuttonpress()
 
 if __name__ == "__main__":
     main()
