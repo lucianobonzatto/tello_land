@@ -60,7 +60,7 @@ class ImageReader:
             [ 0,-1, 0],  # Cos(180) = -1, Sin(180) = 0
             [ 0, 0, 1]    # Eixo Z permanece o mesmo
         ])
-        
+
         self.TM_Aruco_To_Landpad_272 = np.eye(4)
         self.TM_Aruco_To_Landpad_272[:3, :3] = Rotation_272
         self.TM_Aruco_To_Landpad_272[:3, 3] = Position_272
