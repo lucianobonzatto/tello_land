@@ -122,7 +122,9 @@ class BagReader:
                         self.camera_matrix,
                         self.distortion_coeffs,
                     )
-                    frame = cv2.drawFrameAxes(frame,self.camera_matrix,self.distortion_coeffs,rvecs,tvecs,marker_length)
+                    #############
+                    # frame = cv2.drawFrameAxes(frame,self.camera_matrix,self.distortion_coeffs,rvecs,tvecs,marker_length)
+                    #############
 
                     if rvecs is not None and tvecs is not None:
                         tvecs = np.squeeze(tvecs)
@@ -131,7 +133,7 @@ class BagReader:
                         pos_landpad_to_camera = self.landpad_to_camera(tvecs, rvecs, marker_id)
 
                         data_row = {
-                            # "time": t,
+                            "time": t,
                             "Marker ID": marker_id,
                             "Tx": tvecs[0],
                             "Ty": tvecs[1],
@@ -145,9 +147,11 @@ class BagReader:
                         }
                         self.data = pd.concat([self.data, pd.DataFrame([data_row])], ignore_index=True)
 
+            #############
             cv2.imshow("Image", frame)
             self.update_plot()
             cv2.waitKey(1)
+            #############
 
     def update_plot(self):
         tx_values = self.data["Tx"]
@@ -197,6 +201,7 @@ def main():
     app = BagReader("/home/lukn23/Desktop/rgb/teste.bag")
     app.show_bag()
     app.save_to_csv("dados_posicoes.csv")
+    plt.waitforbuttonpress()
 
 if __name__ == "__main__":
     main()
