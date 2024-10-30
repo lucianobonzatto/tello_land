@@ -45,31 +45,37 @@ class ImageReader:
         # Cria a matriz de transformação Landpad -> Aruco
 
         Position_272 = np.array([-0.255, -0.160, 0])
-        # Position_272 = np.array([0.320, 0.215, 0])
-        Rotation_272 = np.eye(3)
-
-        Position_682 = np.array([0.043, 0.038, 0])
-        Rotation_682 = np.array([
+        Rotation_272 = np.array([
             [-1, 0, 0],  # Cos(180) = -1, Sin(180) = 0
-            [0, -1, 0],  # Cos(180) = -1, Sin(180) = 0
-            [0, 0, 1]    # Eixo Z permanece o mesmo
+            [ 0,-1, 0],  # Cos(180) = -1, Sin(180) = 0
+            [ 0, 0, 1]    # Eixo Z permanece o mesmo
         ])
 
+        Position_682 = np.array([0.043, 0.038, 0])
+        Rotation_682 = np.eye(3)
+
         Position_000 = np.array([0.320, 0.215, 0])
-        # Position_000 = np.array([-0.255, -0.160, 0])
-        Rotation_000 = np.eye(3)
+        Rotation_000 = np.array([
+            [-1, 0, 0],  # Cos(180) = -1, Sin(180) = 0
+            [ 0,-1, 0],  # Cos(180) = -1, Sin(180) = 0
+            [ 0, 0, 1]    # Eixo Z permanece o mesmo
+        ])
         
-        self.TM_Landpad_To_Aruco_272 = np.eye(4)
-        self.TM_Landpad_To_Aruco_272[:3, :3] = Rotation_272
-        self.TM_Landpad_To_Aruco_272[:3, 3] = Position_272
+        self.TM_Aruco_To_Landpad_272 = np.eye(4)
+        self.TM_Aruco_To_Landpad_272[:3, :3] = Rotation_272
+        self.TM_Aruco_To_Landpad_272[:3, 3] = Position_272
 
-        self.TM_Landpad_To_Aruco_682 = np.eye(4)
-        self.TM_Landpad_To_Aruco_682[:3, :3] = Rotation_682
-        self.TM_Landpad_To_Aruco_682[:3, 3] = Position_682
+        self.TM_Aruco_To_Landpad_682 = np.eye(4)
+        self.TM_Aruco_To_Landpad_682[:3, :3] = Rotation_682
+        self.TM_Aruco_To_Landpad_682[:3, 3] = Position_682
 
-        self.TM_Landpad_To_Aruco_000 = np.eye(4)
-        self.TM_Landpad_To_Aruco_000[:3, :3] = Rotation_000
-        self.TM_Landpad_To_Aruco_000[:3, 3] = Position_000
+        self.TM_Aruco_To_Landpad_000 = np.eye(4)
+        self.TM_Aruco_To_Landpad_000[:3, :3] = Rotation_000
+        self.TM_Aruco_To_Landpad_000[:3, 3] = Position_000
+
+        self.TM_Landpad_To_Aruco_272 = np.linalg.inv(self.TM_Aruco_To_Landpad_272)
+        self.TM_Landpad_To_Aruco_682 = np.linalg.inv(self.TM_Aruco_To_Landpad_682)
+        self.TM_Landpad_To_Aruco_000 = np.linalg.inv(self.TM_Aruco_To_Landpad_000)
 
     def save_to_csv(self, filename):
         print("Saving data to:", filename)
@@ -190,8 +196,8 @@ class ImageReader:
 
 
 def main():
-    # app = ImageReader("/home/lukn23/Desktop/rgb/read")
-    app = ImageReader("/home/lukn23/Desktop/rgb/images")
+    app = ImageReader("/home/lukn23/Desktop/rgb/read")
+    # app = ImageReader("/home/lukn23/Desktop/rgb/images")
     app.process_images()
     app.save_to_csv("dados_posicoes.csv")
     plt.waitforbuttonpress()
