@@ -32,15 +32,12 @@ class BagReader:
             columns=[
                 "time",
                 "Marker ID",
-                "Tx",
-                "Ty",
-                "Tz",
-                "Rx",
-                "Ry",
-                "Rz",
-                "Tx_cam",
-                "Ty_cam",
-                "Tz_cam",
+                "Tx_landpad",
+                "Ty_landpad",
+                "Tz_landpad",
+                "Roll_landpad",
+                "Pitch_landpad",
+                "Yaw_landpad",
             ]
         )
 
@@ -129,21 +126,17 @@ class BagReader:
                     if rvecs is not None and tvecs is not None:
                         tvecs = np.squeeze(tvecs)
                         rvecs = np.squeeze(rvecs)
-                        rotation_matrix_euler = R.from_rotvec(rvecs).as_euler('ZYX')
-                        pos_landpad_to_camera = self.landpad_to_camera(tvecs, rvecs, marker_id)
+                        pos_landpad_to_camera, rot_landpad_to_camera = self.landpad_to_camera(tvecs, rvecs, marker_id)
 
                         data_row = {
                             "time": t,
                             "Marker ID": marker_id,
-                            "Tx": tvecs[0],
-                            "Ty": tvecs[1],
-                            "Tz": tvecs[2],
-                            "Rx": rotation_matrix_euler[0],
-                            "Ry": rotation_matrix_euler[1],
-                            "Rz": rotation_matrix_euler[2],
-                            "Tx_cam": pos_landpad_to_camera[0],
-                            "Ty_cam": pos_landpad_to_camera[1],
-                            "Tz_cam": pos_landpad_to_camera[2],
+                            "Tx_landpad": pos_landpad_to_camera[0],
+                            "Ty_landpad": pos_landpad_to_camera[1],
+                            "Tz_landpad": pos_landpad_to_camera[2],
+                            "Roll_landpad": rot_landpad_to_camera[0],
+                            "Pitch_landpad": rot_landpad_to_camera[1],
+                            "Yaw_landpad": rot_landpad_to_camera[2],
                         }
                         self.data = pd.concat([self.data, pd.DataFrame([data_row])], ignore_index=True)
 
@@ -154,17 +147,16 @@ class BagReader:
             #############
 
     def update_plot(self):
-        tx_values = self.data["Tx"]
-        ty_values = self.data["Ty"]
-        tz_values = self.data["Tz"]
-        tx_cam_values = self.data["Tx_cam"]
-        ty_cam_values = self.data["Ty_cam"]
-        tz_cam_values = self.data["Tz_cam"]
-        marker_ids = self.data["Marker ID"]
+        Tx_landpad      = self.data["Tx_landpad"]
+        Ty_landpad      = self.data["Ty_landpad"]
+        Tz_landpad      = self.data["Tz_landpad"]
+        Roll_landpad    = self.data["Roll_landpad"]
+        Pitch_landpad   = self.data["Pitch_landpad"]
+        Yaw_landpad     = self.data["Yaw_landpad"]
+        marker_ids      = self.data["Marker ID"]
         colors = [self.colors[id] for id in marker_ids]
 
-        self.ax.scatter(tx_values, ty_values, c=colors)
-        self.ax.scatter(tx_cam_values, ty_cam_values, c=colors, marker='*')
+        self.ax.scatter(Tx_landpad, Ty_landpad, c=colors, marker='*')
         legend_elements = [Line2D([0], [0], marker='o', color='w', label=self.labels[id], markerfacecolor=color, markersize=10) for id, color in self.colors.items()]
         self.ax.legend(handles=legend_elements, loc='best')
 
@@ -194,7 +186,12 @@ class BagReader:
             TM_Landpad_To_Camera = TM_Aruco_To_Camera @ self.TM_Landpad_To_Aruco_000
 
         pos_landpad_to_camera = TM_Landpad_To_Camera[:3, 3]
-        return pos_landpad_to_camera
+        pos_landpad_to_camera[1] = -pos_landpad_to_camera[1]
+
+        rotation_landpad_to_camera = R.from_matrix(TM_Landpad_To_Camera[:3, :3])
+        rot_landpad_to_camera = rotation_landpad_to_camera.as_euler('ZYX', degrees=True) # roll, pitch, yaw
+
+        return pos_landpad_to_camera, rot_landpad_to_camera
 
 
 def main():
